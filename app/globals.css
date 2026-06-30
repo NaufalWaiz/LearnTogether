@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --background: #ffffff;
   --ink: #08090d;
@@ -62,24 +66,11 @@ a {
 }
 
 .logo {
-  color: var(--coral);
+  color: #000000;
   font-family: var(--font-display), Arial, sans-serif;
   font-size: 21px;
   font-weight: 800;
   white-space: nowrap;
-}
-
-.logo span:not(.dot) {
-  color: var(--coral);
-}
-
-.logo {
-  color: #111;
-}
-
-.logo span:first-child,
-.logo .dot {
-  color: var(--coral);
 }
 
 .search-pill {
@@ -116,6 +107,21 @@ a {
 .portfolio-actions button {
   border: 0;
   background: transparent;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px; /* Jarak antar menu navigasi */
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #111; /* Warna teks menu hitam */
+  font-weight: 500;
+}
+
+.nav-links a:hover {
+  opacity: 0.7; /* Efek pas di-hover */
 }
 
 .mic-button {
