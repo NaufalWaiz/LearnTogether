@@ -145,13 +145,13 @@ export default function OnboardingPage() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 max-w-sm w-full text-center flex flex-col items-center gap-4">
-          <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
+          <div className="p-3 bg-orange-50 text-orange-600 rounded-2xl">
             <Code2 size={30} />
           </div>
           <h1 className="text-xl font-bold text-gray-900">Lengkapi Profil Skill</h1>
           <p className="text-sm text-gray-500 leading-relaxed">Login dulu untuk menyimpan skill dan membuat atau join team.</p>
           <SignInButton mode="modal">
-            <button className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-md">
+            <button className="w-full py-3 px-4 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-md">
               Login <ArrowRight size={17} />
             </button>
           </SignInButton>
@@ -176,8 +176,8 @@ export default function OnboardingPage() {
       <div className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0">
         <GraduationCap size={120} className="absolute top-[15%] left-[-2%] text-gray-200/40 -rotate-12 hidden md:block" />
         <Lightbulb size={100} className="absolute top-[45%] right-[-1%] text-yellow-200/30 rotate-12 hidden md:block" />
-        <Laptop size={110} className="absolute bottom-[10%] left-[3%] text-blue-200/30 rotate-6 hidden md:block" />
-        <Brain size={90} className="absolute top-[8%] right-[5%] text-purple-200/30 -rotate-12 hidden md:block" />
+        <Laptop size={110} className="absolute bottom-[10%] left-[3%] text-orange-200/30 rotate-6 hidden md:block" />
+        <Brain size={90} className="absolute top-[8%] right-[5%] text-pink-200/30 -rotate-12 hidden md:block" />
         <BookOpen size={95} className="absolute bottom-[20%] right-[4%] text-emerald-200/30 -rotate-6 hidden md:block" />
         <Sparkles size={40} className="absolute top-[30%] left-[12%] text-amber-200/50 hidden md:block" />
       </div>
@@ -264,8 +264,8 @@ export default function OnboardingPage() {
 
                   if (field.includes("Frontend")) {
                     cardBg = "bg-[#edf5ff]"; 
-                    selectedBorder = "border-blue-500 ring-4 ring-blue-100";
-                    iconColor = "text-blue-500";
+                    selectedBorder = "border-orange-500 ring-4 ring-orange-100";
+                    iconColor = "text-orange-500";
                     IconComponent = Code2;
                   } else if (field.includes("Backend")) {
                     cardBg = "bg-[#eefdf5]";
@@ -274,8 +274,8 @@ export default function OnboardingPage() {
                     IconComponent = Database;
                   } else if (field.includes("UI/UX")) {
                     cardBg = "bg-[#f5f0ff]"; 
-                    selectedBorder = "border-purple-500 ring-4 ring-purple-100";
-                    iconColor = "text-purple-500";
+                    selectedBorder = "border-pink-500 ring-4 ring-pink-100";
+                    iconColor = "text-pink-500";
                     IconComponent = Palette;
                   } else if (field.includes("Mobile")) {
                     cardBg = "bg-[#fff7eb]";
@@ -294,8 +294,8 @@ export default function OnboardingPage() {
                     IconComponent = Shield;
                   } else if (field.includes("Project")) {
                     cardBg = "bg-[#f0f9ff]"; 
-                    selectedBorder = "border-blue-500 ring-4 ring-blue-100";
-                    iconColor = "text-blue-500";
+                    selectedBorder = "border-orange-500 ring-4 ring-orange-100";
+                    iconColor = "text-orange-500";
                     IconComponent = FolderOpen;
                   }
 
@@ -330,7 +330,7 @@ export default function OnboardingPage() {
                       </div>
 
                       {isSelected && (
-                        <span className="absolute top-4 right-4 text-[9px] font-bold text-blue-600 bg-white/80 backdrop-blur-xs border border-blue-200 dst px-2 py-0.5 rounded flex items-center gap-1 shadow-xs">
+                        <span className="absolute top-4 right-4 text-[9px] font-bold text-orange-600 bg-white/80 backdrop-blur-xs border border-orange-200 dst px-2 py-0.5 rounded flex items-center gap-1 shadow-xs">
                           <Check size={10} /> TERPILIH
                         </span>
                       )}
@@ -358,11 +358,11 @@ export default function OnboardingPage() {
                     onClick={() => toggleSkill(skill)}
                     className={`px-4 py-2.5 rounded-full text-sm font-medium border transition-all flex items-center gap-2 ${
                       isSelected 
-                        ? "bg-blue-50 border-blue-600 text-blue-700 font-semibold shadow-sm" 
+                        ? "bg-orange-50 border-orange-600 text-orange-700 font-semibold shadow-sm" 
                         : "bg-white border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
                     }`}
                   >
-                    {isSelected && <Check size={14} className="text-blue-600" />}
+                    {isSelected && <Check size={14} className="text-orange-600" />}
                     {skill}
                   </button>
                 );
@@ -388,7 +388,7 @@ export default function OnboardingPage() {
                       onClick={() => setSkillLevel(level)}
                       className={`p-4 rounded-xl border text-left transition-all flex flex-col gap-0.5 ${
                         skillLevel === level 
-                          ? "border-blue-500 bg-blue-50/30 font-semibold" 
+                          ? "border-orange-500 bg-orange-50/30 font-semibold" 
                           : "border-gray-200 hover:border-gray-300 hover:bg-gray-50/50"
                       }`}
                     >
@@ -406,7 +406,7 @@ export default function OnboardingPage() {
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-3">Komitmen Waktu (Availability)</label>
                     <select
-                      className="w-full p-3.5 rounded-xl border border-gray-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 text-sm bg-white text-gray-700 transition-all cursor-pointer"
+                      className="w-full p-3.5 rounded-xl border border-gray-200 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 text-sm bg-white text-gray-700 transition-all cursor-pointer"
                       value={availability}
                       onChange={(e) => setAvailability(e.target.value)}
                     >
@@ -440,11 +440,11 @@ export default function OnboardingPage() {
                     onClick={() => setSelectedGoal(goal.id)}
                     className={`p-4 rounded-xl border text-left transition-all flex items-start gap-3 ${
                       selectedGoal === goal.id
-                        ? "border-blue-500 bg-blue-50/30 ring-2 ring-blue-50"
+                        ? "border-orange-500 bg-orange-50/30 ring-2 ring-orange-50"
                         : "border-gray-200 hover:border-gray-300 hover:bg-gray-50/50"
                     }`}
                   >
-                    <Target size={18} className={`mt-0.5 shrink-0 ${selectedGoal === goal.id ? "text-blue-600" : "text-gray-400"}`} />
+                    <Target size={18} className={`mt-0.5 shrink-0 ${selectedGoal === goal.id ? "text-orange-600" : "text-gray-400"}`} />
                     <div>
                       <div className="text-sm font-bold text-gray-900">{goal.label}</div>
                       <div className="text-xs text-gray-400 mt-0.5 leading-relaxed">{goal.desc}</div>

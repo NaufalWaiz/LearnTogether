@@ -247,3 +247,29 @@ drop trigger if exists set_portfolios_updated_at on public.portfolios;
 create trigger set_portfolios_updated_at
 before update on public.portfolios
 for each row execute function public.set_updated_at();
+-- Create the progress tracking table
+create table if not exists public.user_course_progress (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references public.users(id) on delete cascade,
+  course_slug text not null,
+  completed_lessons jsonb not null default '[]'::jsonb,
+  last_accessed timestamptz not null default now(),
+  unique (user_id, course_slug)
+);
+
+-- Enable RLS (Row Level Security)
+alter table public.user_course_progress enable row level security;
+
+-- Policy: Users can read their own progress
+create policy "Users can read own progress"
+  on public.user_course_progress for select
+  using (auth.uid() = user_id);
+
+-- Policy: Users can update their own progress
+create policy "Users can insert own progress"
+  on public.user_course_progress for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can update own progress"
+  on public.user_course_progress for update
+  using (auth.uid() = user_id);

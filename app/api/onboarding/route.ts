@@ -109,9 +109,18 @@ export async function POST(request: Request) {
       throw new Error(userSkillError.message);
     }
 
+    // Set Clerk publicMetadata to indicate onboarding is complete
+    const { clerkClient } = await import("@clerk/nextjs/server");
+    const client = await clerkClient();
+    await client.users.updateUserMetadata(clerkUser.id, {
+      publicMetadata: {
+        onboardingComplete: true
+      }
+    });
+
     return NextResponse.json({
       saved: true,
-      next: body.team_preference === "create" ? "/teams/new" : "/teams"
+      next: "/dashboard" // changed from /teams so they go to dashboard which has everything
     });
   } catch (error) {
     console.error(error);

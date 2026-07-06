@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { DM_Sans, Poppins } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const dmsans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap"
 });
 
-const jakarta = Plus_Jakarta_Sans({
+const poppins = Poppins({
+  weight: ['400', '500', '600', '700', '800'],
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap"
@@ -29,7 +30,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="id">
-        <body className={`${inter.variable} ${jakarta.variable}`}>
+        <body className={`${dmsans.variable} ${poppins.variable} font-sans bg-[#FFF5F1]`}>
           {children}
         </body>
       </html>

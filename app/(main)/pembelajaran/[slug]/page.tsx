@@ -1,73 +1,20 @@
 import React from 'react'
 import Link from 'next/link'
+import { curriculum } from '@/lib/curriculum'
+import { currentUser } from '@clerk/nextjs/server'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { CheckCircle2 } from 'lucide-react'
+import { cookies } from 'next/headers'
 
 interface PageProps {
   params: Promise<{ slug: string }>
 }
 
-const uiUxModules = [
-  {
-    id: 1,
-    title: 'Introduction to UI/UX',
-    students: 420,
-    duration: '25h',
-    rating: '5.0',
-    bgClass: 'from-blue-400 to-sky-500',
-    tag: 'WHAT IS UI UX?'
-  },
-  {
-    id: 2,
-    title: 'What is Figma',
-    students: 420,
-    duration: '25h',
-    rating: '5.0',
-    bgClass: 'from-teal-600 to-emerald-500',
-    tag: 'What Is User Research?'
-  },
-  {
-    id: 3,
-    title: 'How to Create Your First Wireframe',
-    students: 420,
-    duration: '25h',
-    rating: '5.0',
-    bgClass: 'from-cyan-600 to-blue-500',
-    tag: 'What Is User Research?'
-  },
-  {
-    id: 4,
-    title: 'How to Create Mockup in Figma',
-    students: 420,
-    duration: '25h',
-    rating: '5.0',
-    bgClass: 'from-purple-700 to-indigo-800',
-    tag: 'WHAT IS A WIREFRAME?'
-  },
-  {
-    id: 5,
-    title: 'Top 10 Figma Tips And Tricks For 2026',
-    students: 420,
-    duration: '25h',
-    rating: '5.0',
-    bgClass: 'from-blue-500 to-indigo-600',
-    tag: 'WHAT IS UI UX?'
-  },
-  {
-    id: 6,
-    title: 'What i UX Design?',
-    students: 420,
-    duration: '25h',
-    rating: '5.0',
-    bgClass: 'from-sky-500 to-indigo-500',
-    tag: 'WHAT IS UI UX?'
-  }
-]
-
 export default async function CourseDetailPage({ params }: PageProps) {
   const { slug } = await params
+  const course = curriculum[slug];
 
-  const isUiUx = slug === 'ui-ux-design' || slug === 'ui-ux-design-advanced'
-
-  if (!isUiUx) {
+  if (!course) {
     return (
       <div className="min-h-screen bg-zinc-50 flex flex-col items-center justify-center p-6 text-center">
         <div className="max-w-md bg-white border border-zinc-200 rounded-3xl p-8 shadow-sm">
@@ -78,13 +25,49 @@ export default async function CourseDetailPage({ params }: PageProps) {
           </p>
           <Link 
             href="/pembelajaran" 
-            className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors"
+            className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-orange-600 hover:bg-orange-700 rounded-xl transition-colors"
           >
             ← Kembali Pilih Kelas
           </Link>
         </div>
       </div>
     )
+  }
+
+  // Get user progress
+  let completedLessons: string[] = [];
+  try {
+    const cookieStore = await cookies();
+    const cookieProgressStr = cookieStore.get(`progress_${slug}`)?.value;
+    if (cookieProgressStr) {
+      completedLessons = JSON.parse(cookieProgressStr);
+    }
+
+    const clerkUser = await currentUser();
+    if (clerkUser) {
+      const supabase = getSupabaseAdmin();
+      const { data: user } = await supabase
+        .from('users')
+        .select('id')
+        .eq('clerk_id', clerkUser.id)
+        .single();
+        
+      if (user) {
+        const { data: progress } = await supabase
+          .from('user_course_progress')
+          .select('completed_lessons')
+          .eq('user_id', user.id)
+          .eq('course_slug', slug)
+          .single();
+          
+        if (progress && progress.completed_lessons) {
+          // Merge cookie and DB progress
+          completedLessons = Array.from(new Set([...completedLessons, ...progress.completed_lessons]));
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Progress check failed (DB offline?):", error);
   }
 
   return (
@@ -103,77 +86,86 @@ export default async function CourseDetailPage({ params }: PageProps) {
           </Link>
           
           <h1 className="text-3xl font-extrabold text-zinc-900 mb-2 flex items-center gap-2">
-            UI/UX Design
+            {course.title}
           </h1>
           <p className="text-zinc-500 max-w-3xl text-sm md:text-base leading-relaxed">
-            Bangun keterampilan UI/UX mulai dari riset pengguna, wireframe, hingga desain prototipe yang siap digunakan.
+            {course.description}
           </p>
         </div>
 
         {/* Grid Cards Modul */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {uiUxModules.map((module) => (
-            <div 
-              key={module.id} 
-              className="bg-white border border-zinc-100 rounded-[2rem] p-4 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
-            >
-              <div>
-                {/* 1. SEKARANG MENGGUNAKAN LINK INTERNAL, BUKAN TAG <a> KE YOUTUBE */}
-                <Link 
-                  href={`/pembelajaran/${slug}/${module.id}/video`}
-                  className={`relative w-full aspect-[4/3] bg-gradient-to-br ${module.bgClass} rounded-2xl mb-4 flex flex-col items-center justify-center p-6 text-center text-white overflow-hidden group`}
-                >
-                  <div className="absolute top-3 left-4 text-[10px] font-bold opacity-70 tracking-wider">simplilearn</div>
-                  <div className="absolute top-3 right-4 text-[10px] font-mono font-bold opacity-70">NN/g</div>
-                  
-                  <h4 className="text-xl font-black max-w-[80%] uppercase tracking-wide leading-tight drop-shadow-sm">
-                    {module.tag}
-                  </h4>
+          {course.lessons.map((module) => {
+            const isCompleted = completedLessons.includes(module.id);
+            
+            return (
+              <div 
+                key={module.id} 
+                className={`bg-white border ${isCompleted ? 'border-emerald-200 shadow-emerald-50' : 'border-zinc-100 shadow-sm'} rounded-[2rem] p-4 hover:shadow-md transition-shadow flex flex-col justify-between relative`}
+              >
+                {isCompleted && (
+                  <div className="absolute top-8 right-8 z-20 bg-white rounded-full text-emerald-500 shadow-sm p-0.5">
+                    <CheckCircle2 size={24} fill="currentColor" className="text-white" />
+                  </div>
+                )}
+                <div>
+                  <Link 
+                    href={`/pembelajaran/${slug}/${module.id}/video`}
+                    className={`relative w-full aspect-[4/3] bg-gradient-to-br ${module.bgClass} rounded-2xl mb-4 flex flex-col items-center justify-center p-6 text-center text-white overflow-hidden group ${isCompleted ? 'opacity-90' : ''}`}
+                  >
+                    <div className="absolute top-3 left-4 text-[10px] font-bold opacity-70 tracking-wider">LEARN_TOGETHER</div>
+                    <div className="absolute top-3 right-4 text-[10px] font-mono font-bold opacity-70">YT</div>
+                    
+                    <h4 className="text-xl font-black max-w-[80%] uppercase tracking-wide leading-tight drop-shadow-sm">
+                      {module.tag}
+                    </h4>
 
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/5 group-hover:bg-black/20 transition-colors">
-                    <div className="w-14 h-14 bg-red-600 rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-6 h-6 text-white ml-1">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/5 group-hover:bg-black/20 transition-colors">
+                      <div className="w-14 h-14 bg-red-600 rounded-full flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className="w-6 h-6 text-white ml-1">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </Link>
+
+                  <div className="px-2">
+                    <h3 className="text-lg font-bold text-zinc-900 mb-3 leading-snug">
+                      {module.title}
+                    </h3>
+                    
+                    <div className="flex items-center gap-4 text-xs font-medium text-zinc-500 mb-4">
+                      <span className="flex items-center gap-1">
+                        🕒 {module.duration}
+                      </span>
                     </div>
                   </div>
-                </Link>
+                </div>
 
-                <div className="px-2">
-                  <h3 className="text-lg font-bold text-zinc-900 mb-3 leading-snug">
-                    {module.title}
-                  </h3>
-                  
-                  <div className="flex items-center gap-4 text-xs font-medium text-zinc-500 mb-4">
-                    <span className="flex items-center gap-1">
-                      👥 {module.students}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      🕒 {module.duration}
-                    </span>
-                    <span className="flex items-center gap-1 text-amber-500 font-bold">
-                      ★ {module.rating}
-                    </span>
+                <div className="px-2 pb-2">
+                  <div className="text-[11px] font-medium text-zinc-400 mb-3 flex justify-between">
+                    <span>Status</span>
+                    {isCompleted ? (
+                      <span className="text-emerald-600 font-bold">Selesai 100%</span>
+                    ) : (
+                      <span>Belum Mulai</span>
+                    )}
                   </div>
+                  
+                  <Link
+                    href={`/pembelajaran/${slug}/${module.id}/video`}
+                    className={`w-full font-bold py-3 px-4 rounded-2xl flex items-center justify-center gap-2 transition-colors text-xs tracking-wide shadow-sm ${
+                      isCompleted 
+                        ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700' 
+                        : 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-200'
+                    }`}
+                  >
+                    {isCompleted ? '✓ Pelajari Ulang' : '🚀 Mulai Belajar'}
+                  </Link>
                 </div>
               </div>
-
-              <div className="px-2 pb-2">
-                <div className="text-[11px] font-medium text-zinc-400 mb-3 flex justify-between">
-                  <span>Progres Belajar</span>
-                  <span>0% Belum Mulai</span>
-                </div>
-                
-                {/* 2. TOMBOL UTAMA JUGA MENGARAH KE LINK TAHAP BELAJAR INTERNAL */}
-                <Link
-                  href={`/pembelajaran/${slug}/${module.id}/video`}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-2xl flex items-center justify-center gap-2 transition-colors text-xs tracking-wide shadow-sm shadow-indigo-200"
-                >
-                  🚀 Mulai Belajar
-                </Link>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
       </div>

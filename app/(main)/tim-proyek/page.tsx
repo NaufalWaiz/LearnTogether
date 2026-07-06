@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useTransition } from 'react';
 import Link from 'next/link';
-import Image from 'next/image'; // Tetap pakai Image Next.js bawaan
-import { Plus, MoreHorizontal, Calendar, X } from 'lucide-react';
+import Image from 'next/image';
+import { Plus, MoreHorizontal, Calendar, X, Loader2 } from 'lucide-react';
+import { getUserProjects, createProjectAndTeam } from '@/app/actions/projects';
 
 interface Project {
   id: string;
@@ -11,69 +12,95 @@ interface Project {
   teamName: string;
   progress: number;
   dueDate: string;
-  // Array berisi path gambar lokal (misal: '/avatar.png') atau string kosong '' jika ingin putih bersih
   members: string[];
 }
 
 const CARD_THEMES = [
-  'bg-blue-500 text-white',
-  'bg-purple-500 text-white',
+  'bg-orange-500 text-white',
+  'bg-pink-500 text-white',
   'bg-emerald-500 text-white',
   'bg-amber-500 text-white',
   'bg-rose-500 text-white',
 ];
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([
-    {
-      id: '1',
-      name: 'Bubadibako',
-      teamName: 'Team Alpha',
-      progress: 75,
-      dueDate: 'Dec 25',
-      // Contoh: member 1 & 3 pakai avatar lokal, member 2 kosong (putih)
-      members: ['/default-avatar.png', '', '/default-avatar.png'], 
-    },
-    {
-      id: '2',
-      name: 'Web Redesign',
-      teamName: 'Design Studio',
-      progress: 40,
-      dueDate: 'Jan 12',
-      members: ['', ''], // Semuanya putih kosong
-    },
-    {
-      id: '3',
-      name: 'BoBoiBoy Air',
-      teamName: 'Animation Crew',
-      progress: 90,
-      dueDate: 'Feb 18',
-      members: ['/default-avatar.png', '', '/default-avatar.png', ''],
-    },
-  ]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState('');
   const [newTeamName, setNewTeamName] = useState('');
 
+  useEffect(() => {
+    async function loadData() {
+      setIsLoading(true);
+      const res = await getUserProjects();
+      if (res.success && res.data && res.data.length > 0) {
+        setProjects(res.data);
+      } else {
+        // Fallback to dummy data if DB empty or offline
+        setProjects([
+          {
+            id: '1',
+            name: 'Bubadibako',
+            teamName: 'Team Alpha',
+            progress: 75,
+            dueDate: 'Dec 25',
+            members: ['/default-avatar.png', '', '/default-avatar.png'], 
+          },
+          {
+            id: '2',
+            name: 'Web Redesign',
+            teamName: 'Design Studio',
+            progress: 40,
+            dueDate: 'Jan 12',
+            members: ['', ''], 
+          }
+        ]);
+      }
+      setIsLoading(false);
+    }
+    loadData();
+  }, []);
+
   const handleAddProject = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProjectName.trim()) return;
 
-    const newProject: Project = {
-      id: Date.now().toString(),
-      name: newProjectName,
-      teamName: newTeamName || 'General Team',
-      progress: 0,
-      dueDate: 'Dec 25',
-      // Default project baru kasih 3 member (2 isi avatar lokal, 1 kosong)
-      members: ['/default-avatar.png', '', '/default-avatar.png'],
-    };
+    startTransition(async () => {
+      // Optimistic update
+      const tempId = Date.now().toString();
+      const newProject: Project = {
+        id: tempId,
+        name: newProjectName,
+        teamName: newTeamName || 'General Team',
+        progress: 0,
+        dueDate: '1 Month',
+        members: ['/default-avatar.png'],
+      };
+      
+      setProjects([...projects, newProject]);
+      setIsModalOpen(false);
 
-    setProjects([...projects, newProject]);
-    setNewProjectName('');
-    setNewTeamName('');
-    setIsModalOpen(false);
+      const res = await createProjectAndTeam(newProjectName, newTeamName);
+      if (res.success) {
+        // Refresh from DB to get real ID
+        const fresh = await getUserProjects();
+        if (fresh.success && fresh.data) setProjects(fresh.data);
+      } else {
+        if (res.error === 'Unauthorized') {
+          // Biarkan state optimistic berjalan untuk demo guest
+          alert('Anda sedang dalam mode Guest (Belum Login). Proyek ditampilkan sementara tapi tidak akan tersimpan secara permanen ke Database Supabase.');
+        } else {
+          // Revert on real DB error
+          setProjects(projects);
+          alert(`Gagal membuat proyek: ${res.error}`);
+        }
+      }
+      setNewProjectName('');
+      setNewTeamName('');
+    });
   };
 
   return (
@@ -83,15 +110,20 @@ export default function ProjectsPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-slate-900">Projects</h1>
           <p className="text-slate-500 mt-1">
-            You have <span className="text-indigo-600 font-semibold">{projects.length} Projects</span>
+            {isLoading ? (
+              <span className="flex items-center gap-2"><Loader2 size={14} className="animate-spin text-amber-600" /> Loading projects...</span>
+            ) : (
+              <>You have <span className="text-amber-600 font-semibold">{projects.length} Projects</span></>
+            )}
           </p>
         </div>
         
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-2xl shadow-md hover:bg-indigo-700 transition font-medium"
+          disabled={isPending}
+          className="flex items-center gap-2 bg-amber-600 text-white px-5 py-2.5 rounded-2xl shadow-md hover:bg-amber-700 transition font-medium disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          <Plus size={18} />
+          {isPending ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
           Add Project
         </button>
       </div>
@@ -192,7 +224,7 @@ export default function ProjectsPage() {
                   placeholder="e.g. Bubadibako"
                   value={newProjectName}
                   onChange={(e) => setNewProjectName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-slate-900"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 transition text-slate-900"
                 />
               </div>
 
@@ -203,7 +235,7 @@ export default function ProjectsPage() {
                   placeholder="e.g. Marketing Team"
                   value={newTeamName}
                   onChange={(e) => setNewTeamName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-slate-900"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 transition text-slate-900"
                 />
               </div>
 
@@ -217,7 +249,7 @@ export default function ProjectsPage() {
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 py-3 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition shadow-md"
+                  className="flex-1 py-3 bg-amber-600 text-white font-semibold rounded-xl hover:bg-amber-700 transition shadow-md"
                 >
                   Create Project
                 </button>

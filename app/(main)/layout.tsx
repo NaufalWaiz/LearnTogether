@@ -1,30 +1,25 @@
-"use client";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
+import ClientLayout from "./ClientLayout";
 
-import { useState } from "react";
-import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
+export default async function MainLayout({ children }: { children: React.ReactNode }) {
+  const clerkUser = await currentUser();
+  
+  if (clerkUser) {
+    const supabase = getSupabaseAdmin();
+    // Check if user has completed onboarding by checking if they are in users table and have preferred_role
+    const { data: user } = await supabase
+      .from("users")
+      .select("preferred_role")
+      .eq("clerk_id", clerkUser.id)
+      .single();
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  // State isCollapsed dipindah ke sini agar bisa diakses Sidebar dan Navbar
-  const [isCollapsed, setIsCollapsed] = useState(false);
+    // If no user found or preferred_role is null, redirect to onboarding
+    if (!user || !user.preferred_role) {
+      redirect("/onboarding");
+    }
+  }
 
-  const toggleSidebar = () => setIsCollapsed(!isCollapsed);
-
-  return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-50">
-      <Sidebar isCollapsed={isCollapsed} />
-      
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Navbar toggleSidebar={toggleSidebar} isCollapsed={isCollapsed} />
-        
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
-        </main>
-      </div>
-    </div>
-  );
-}   
+  return <ClientLayout>{children}</ClientLayout>;
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const DUMMY_USERS = [
   { id: 'u1', name: 'Revani Khoirunnisa', role: 'Project Manager', avatar: '👩', status: 'online' },
@@ -18,8 +18,8 @@ const PRIORITY_OPTIONS = [
 ];
 
 const TAG_OPTIONS = [
-  { value: 'Design', color: 'bg-blue-600' },
-  { value: 'Research', color: 'bg-purple-600' },
+  { value: 'Design', color: 'bg-orange-600' },
+  { value: 'Research', color: 'bg-pink-600' },
   { value: 'Dev', color: 'bg-orange-500' },
   { value: 'Planning', color: 'bg-pink-500' },
   { value: 'Content', color: 'bg-teal-500' },
@@ -28,40 +28,99 @@ const TAG_OPTIONS = [
 const INITIAL_COLUMNS = {
   todo: {
     title: 'TODO',
-    bgStyles: 'bg-purple-50/70 border-purple-100',
-    textStyles: 'text-purple-700',
-    badgeStyles: 'bg-purple-200 text-purple-800',
-    tasks: [
-      { id: 't1', title: 'High priority mobile app design health', desc: 'High priority work will be done on health', tag: 'Design', tagColor: 'bg-blue-600', progressPercentage: 35, assignedTo: ['u1', 'u2'], priority: 'High', priorityColor: 'text-red-500 bg-red-50' },
-      { id: 't2', title: 'Research mobile app', desc: 'can make a small diameter junior low priority', tag: 'Research', tagColor: 'bg-purple-600', progressPercentage: 0, assignedTo: ['u3'], priority: 'Low', priorityColor: 'text-gray-500 bg-gray-50' },
-    ]
+    bgStyles: 'bg-pink-50/70 border-pink-100',
+    textStyles: 'text-pink-700',
+    badgeStyles: 'bg-pink-200 text-pink-800',
+    tasks: [] as any[]
   },
   in_progress: {
     title: 'IN PROGRESS',
-    bgStyles: 'bg-blue-50/70 border-blue-100',
-    textStyles: 'text-blue-700',
-    badgeStyles: 'bg-blue-200 text-blue-800',
-    tasks: [
-      { id: 't3', title: 'Implement a low priority software very simple', desc: 'An easy software will be made quickly', tag: 'Dev', tagColor: 'bg-orange-500', progressPercentage: 20, assignedTo: ['u1', 'u4'], priority: 'Low', priorityColor: 'text-gray-500 bg-gray-50' },
-      { id: 't4', title: 'A good landing page design will be made', desc: 'A good customer needs a nice design', tag: 'Design', tagColor: 'bg-blue-600', progressPercentage: 15, assignedTo: ['u2'], priority: 'Mid', priorityColor: 'text-green-500 bg-green-50' },
-      { id: 't5', title: 'Hospital application', desc: 'Need a quick application', tag: 'Planning', tagColor: 'bg-pink-500', progressPercentage: 70, assignedTo: ['u5'], priority: 'Low', priorityColor: 'text-gray-500 bg-gray-50' },
-    ]
+    bgStyles: 'bg-orange-50/70 border-orange-100',
+    textStyles: 'text-orange-700',
+    badgeStyles: 'bg-orange-200 text-orange-800',
+    tasks: [] as any[]
   },
   completed: {
     title: 'COMPLETED',
     bgStyles: 'bg-green-50/70 border-green-100',
     textStyles: 'text-green-700',
     badgeStyles: 'bg-green-200 text-green-800',
-    tasks: [
-      { id: 't6', title: 'Content mobile app', desc: 'not too important', tag: 'Content', tagColor: 'bg-teal-500', progressPercentage: 100, assignedTo: ['u6'], priority: 'Low', priorityColor: 'text-gray-500 bg-gray-50' }
-    ]
+    tasks: [] as any[]
   }
 };
 
 type ColumnKey = keyof typeof INITIAL_COLUMNS;
 
+import { getProjectDetail, updateTaskStatus, addTask, updateProjectDescription } from '@/app/actions/projects';
+import { useParams } from 'next/navigation';
+
 export default function ProjectDashboardOnly() {
+  const params = useParams();
+  const projectId = params.slug as string;
+  
   const [columns, setColumns] = useState(INITIAL_COLUMNS);
+  const [isLoading, setIsLoading] = useState(true);
+  const [projectTitle, setProjectTitle] = useState('Loading Project...');
+  const [projectData, setProjectData] = useState<any>(null);
+  const [teamMembers, setTeamMembers] = useState<any[]>(DUMMY_USERS);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [editDescriptionValue, setEditDescriptionValue] = useState('');
+  
+  useEffect(() => {
+    async function fetchProject() {
+      setIsLoading(true);
+      const res = await getProjectDetail(projectId);
+      if (res.success && res.project) {
+        setProjectTitle(res.project.title);
+        setProjectData(res.project);
+        setEditDescriptionValue(res.project.description || '');
+        
+        // Map team members (handle potential array of teams from supabase)
+        const teamObj = Array.isArray(res.project.teams) ? res.project.teams[0] : res.project.teams;
+        const mappedMembers = teamObj?.team_members?.map((tm: any) => ({
+          id: tm.users?.id || Math.random().toString(),
+          name: tm.users?.full_name || 'Unknown',
+          role: tm.role_in_team || 'Member',
+          avatar: tm.users?.avatar_url || '👤',
+          status: 'online'
+        })) || [];
+        if (mappedMembers.length > 0) setTeamMembers(mappedMembers);
+
+        // Group tasks into columns
+        const cols: any = {
+          todo: { ...INITIAL_COLUMNS.todo, tasks: [] },
+          in_progress: { ...INITIAL_COLUMNS.in_progress, tasks: [] },
+          completed: { ...INITIAL_COLUMNS.completed, tasks: [] },
+        };
+        
+        (res.tasks || []).forEach((task: any) => {
+          let colKey = task.status;
+          if (colKey === 'done') colKey = 'completed'; // map DB done to completed
+          if (!cols[colKey]) colKey = 'todo'; // fallback
+
+          const priorityObj = PRIORITY_OPTIONS.find(p => p.value.toLowerCase() === task.priority?.toLowerCase()) || PRIORITY_OPTIONS[1];
+          // Try to parse tag from description or fallback
+          const defaultTag = TAG_OPTIONS[0];
+
+          cols[colKey].tasks.push({
+            id: task.id,
+            title: task.title,
+            desc: task.description,
+            tag: defaultTag.value,
+            tagColor: defaultTag.color,
+            progressPercentage: colKey === 'completed' ? 100 : (colKey === 'in_progress' ? 50 : 0),
+            assignedTo: task.assignee_id ? [task.assignee_id] : [],
+            priority: priorityObj.value,
+            priorityColor: priorityObj.color
+          });
+        });
+        
+        setColumns(cols);
+      }
+      setIsLoading(false);
+    }
+    fetchProject();
+  }, [projectId]);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
@@ -78,6 +137,16 @@ export default function ProjectDashboardOnly() {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('Member');
 
+  const handleSaveDescription = async () => {
+    const res = await updateProjectDescription(projectId, editDescriptionValue);
+    if (res.success) {
+      setProjectData({ ...projectData, description: editDescriptionValue });
+      setIsEditingDescription(false);
+    } else {
+      alert('Gagal menyimpan deskripsi');
+    }
+  };
+
   const totalTasks = Object.values(columns).reduce((acc, col) => acc + col.tasks.length, 0);
   const completedTasks = columns.completed.tasks.length;
   const overallProgressPercentage = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
@@ -90,7 +159,7 @@ export default function ProjectDashboardOnly() {
     e.preventDefault();
   };
 
-  const handleDrop = (e: React.DragEvent, targetCol: ColumnKey) => {
+  const handleDrop = async (e: React.DragEvent, targetCol: ColumnKey) => {
     e.preventDefault();
     const dataStr = e.dataTransfer.getData('text/plain');
     if (!dataStr) return;
@@ -108,6 +177,10 @@ export default function ProjectDashboardOnly() {
     
     if (targetCol === 'completed') {
       movedTask.progressPercentage = 100;
+    } else if (targetCol === 'in_progress') {
+      movedTask.progressPercentage = 50;
+    } else {
+      movedTask.progressPercentage = 0;
     }
 
     setColumns({
@@ -115,6 +188,9 @@ export default function ProjectDashboardOnly() {
       [sourceCol]: { ...columns[sourceCol], tasks: sourceTasks },
       [targetCol]: { ...columns[targetCol], tasks: [...targetTasks, movedTask] }
     });
+
+    let newDbStatus = targetCol === 'completed' ? 'done' : targetCol;
+    await updateTaskStatus(taskId, newDbStatus);
   };
 
   const handleOpenModal = (columnKey: ColumnKey) => {
@@ -134,15 +210,16 @@ export default function ProjectDashboardOnly() {
     }
   };
 
-  const handleAddTask = (e: React.FormEvent) => {
+  const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim() || !activeColumnKey) return;
 
     const selectedPriorityObj = PRIORITY_OPTIONS.find(p => p.value === newPriority) || PRIORITY_OPTIONS[1];
     const selectedTagObj = TAG_OPTIONS.find(t => t.value === newTag) || TAG_OPTIONS[0];
 
+    const tempId = `t_${Date.now()}`;
     const newTask = {
-      id: `t_${Date.now()}`,
+      id: tempId,
       title: newTitle,
       desc: newDesc || 'No description provided.',
       tag: selectedTagObj.value,
@@ -165,6 +242,33 @@ export default function ProjectDashboardOnly() {
     setNewDesc('');
     setNewAssignees([]);
     setIsModalOpen(false);
+
+    let dbStatus = activeColumnKey === 'completed' ? 'done' : activeColumnKey;
+    const res = await addTask(projectId, {
+      title: newTitle,
+      description: newDesc || `[${selectedTagObj.value}]`,
+      status: dbStatus,
+      priority: selectedPriorityObj.value,
+      assignee_id: newAssignees.length > 0 ? newAssignees[0] : null
+    });
+
+    if (res.success && res.taskId) {
+      // update task id
+      setColumns(prev => {
+        const colTasks = [...prev[activeColumnKey].tasks];
+        const idx = colTasks.findIndex(t => t.id === tempId);
+        if (idx !== -1) {
+          colTasks[idx].id = res.taskId;
+        }
+        return {
+          ...prev,
+          [activeColumnKey]: {
+            ...prev[activeColumnKey],
+            tasks: colTasks
+          }
+        };
+      });
+    }
   };
 
   const handleInviteSubmit = (e: React.FormEvent) => {
@@ -178,10 +282,10 @@ export default function ProjectDashboardOnly() {
     <div className="min-h-screen bg-gray-50/50 font-sans text-gray-800 flex flex-col">
       <main className="p-4 md:p-8 flex-1 overflow-y-auto max-w-[1600px] w-full mx-auto">
         <div className="mb-6">
-          <p className="text-xs font-semibold text-gray-400 tracking-wider">Health Mobile App</p>
+          <p className="text-xs font-semibold text-gray-400 tracking-wider">Project Board</p>
           <div className="flex flex-wrap items-center justify-between gap-4 mt-1">
             <div className="flex flex-wrap items-center gap-4 md:gap-6">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Mobile App Projects</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{isLoading ? 'Loading...' : projectTitle}</h1>
               
               <div className="bg-white px-4 py-2 rounded-xl border border-gray-200/80 shadow-sm flex items-center gap-3">
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Overall Progress:</span>
@@ -198,13 +302,52 @@ export default function ProjectDashboardOnly() {
         </div>
 
         <div className="mb-6 bg-white border border-gray-200/80 rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-xl">🤖</span>
-            <h2 className="text-base font-bold text-gray-900">AI Summary</h2>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🤖</span>
+              <h2 className="text-base font-bold text-gray-900">AI Summary</h2>
+            </div>
+            {!isEditingDescription && (
+              <button 
+                onClick={() => {
+                  setEditDescriptionValue(projectData?.description || '');
+                  setIsEditingDescription(true);
+                }}
+                className="text-xs font-semibold text-orange-600 hover:text-orange-700 bg-orange-50 px-2.5 py-1.5 rounded-lg transition-colors"
+              >
+                ✎ Edit Deskripsi
+              </button>
+            )}
           </div>
-          <p className="text-sm text-gray-600 leading-relaxed mb-4">
-            Project Health Mobile App bertujuan untuk membuat aplikasi manajemen kesehatan interaktif. Fokus saat ini adalah menyelesaikan fitur integrasi data dan penyempurnaan UI.
-          </p>
+          
+          {isEditingDescription ? (
+            <div className="mb-4">
+              <textarea
+                value={editDescriptionValue}
+                onChange={(e) => setEditDescriptionValue(e.target.value)}
+                className="w-full px-3 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none min-h-[100px]"
+                placeholder="Masukkan deskripsi proyek Anda di sini..."
+              />
+              <div className="flex justify-end gap-2 mt-2">
+                <button 
+                  onClick={() => setIsEditingDescription(false)}
+                  className="px-3 py-1.5 text-xs text-gray-500 hover:bg-gray-50 rounded-lg border border-gray-200"
+                >
+                  Batal
+                </button>
+                <button 
+                  onClick={handleSaveDescription}
+                  className="px-3 py-1.5 text-xs bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-medium shadow-sm transition-colors"
+                >
+                  Simpan
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600 leading-relaxed mb-4 whitespace-pre-wrap">
+              {projectData?.description || 'Belum ada deskripsi untuk proyek ini. Tambahkan deskripsi proyek untuk membantu AI menyusun ringkasan yang lebih baik.'}
+            </p>
+          )}
           <div className="space-y-2.5 text-xs font-medium text-gray-700">
             <div className="flex items-center gap-2">
               <span className="text-green-500">✓</span>
@@ -215,7 +358,7 @@ export default function ProjectDashboardOnly() {
               <span>Perhatian: 1 task memerlukan review prioritas tinggi</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-blue-500">ℹ</span>
+              <span className="text-orange-500">ℹ</span>
               <span>Disarankan: Tim UI/UX mulai mendesain aset modul berikutnya lebih awal</span>
             </div>
           </div>
@@ -271,24 +414,28 @@ export default function ProjectDashboardOnly() {
                             </div>
                             <div className="w-full bg-gray-100 rounded-full h-1.5">
                               <div 
-                                className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
+                                className="bg-orange-500 h-1.5 rounded-full transition-all duration-300"
                                 style={{ width: `${task.progressPercentage}%` }}
                               ></div>
                             </div>
                           </div>
                           
                           <div className="pt-2 border-t border-gray-100 flex items-center justify-between mt-1">
-                            <span className="text-[10px] text-gray-400 font-medium">ID: {task.id}</span>
+                            <span className="text-[10px] text-gray-400 font-medium truncate max-w-[80px]">ID: {task.id.slice(0, 8)}</span>
                             <div className="flex -space-x-1.5 overflow-hidden">
-                              {task.assignedTo.map((userId) => {
-                                const user = DUMMY_USERS.find(u => u.id === userId);
+                              {task.assignedTo.map((userId: string) => {
+                                const user = teamMembers.find(u => u.id === userId);
                                 return (
                                   <div 
                                     key={userId} 
-                                    className="w-5 h-5 bg-blue-50 border border-white rounded-full flex items-center justify-center text-[10px]" 
+                                    className="w-5 h-5 bg-orange-50 border border-white rounded-full flex items-center justify-center text-[10px] overflow-hidden" 
                                     title={user?.name}
                                   >
-                                    {user?.avatar || '👤'}
+                                    {user?.avatar?.startsWith('http') ? (
+                                      <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                      user?.avatar || '👤'
+                                    )}
                                   </div>
                                 );
                               })}
@@ -301,7 +448,7 @@ export default function ProjectDashboardOnly() {
 
                   <button 
                     onClick={() => handleOpenModal(key)}
-                    className="mt-4 w-full py-2 border border-dashed border-gray-300 rounded-xl text-xs font-semibold text-blue-600 hover:bg-white hover:border-blue-200 transition-colors bg-white/40"
+                    className="mt-4 w-full py-2 border border-dashed border-gray-300 rounded-xl text-xs font-semibold text-orange-600 hover:bg-white hover:border-orange-200 transition-colors bg-white/40"
                   >
                     + Add Card
                   </button>
@@ -314,21 +461,25 @@ export default function ProjectDashboardOnly() {
             
             <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-gray-900">Anggota Tim ({DUMMY_USERS.length})</h3>
+                <h3 className="text-sm font-bold text-gray-900">Anggota Tim ({teamMembers.length})</h3>
                 <button 
                   onClick={() => setIsInviteOpen(true)}
-                  className="px-2.5 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-xs font-semibold hover:bg-indigo-100 transition-colors"
+                  className="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-lg text-xs font-semibold hover:bg-amber-100 transition-colors"
                 >
                   + Undang
                 </button>
               </div>
 
               <div className="space-y-3.5">
-                {DUMMY_USERS.slice(0, 4).map((user) => (
+                {teamMembers.slice(0, 4).map((user) => (
                   <div key={user.id} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center text-lg shadow-sm">
-                        {user.avatar}
+                      <div className="w-9 h-9 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center text-lg shadow-sm overflow-hidden">
+                        {user.avatar?.startsWith('http') ? (
+                          <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                        ) : (
+                          user.avatar || '👤'
+                        )}
                       </div>
                       <div>
                         <h4 className="text-xs font-bold text-gray-800 leading-tight">{user.name}</h4>
@@ -344,7 +495,7 @@ export default function ProjectDashboardOnly() {
 
               <button 
                 onClick={() => setIsMembersModalOpen(true)}
-                className="w-full mt-4 text-center text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors pt-2 border-t border-gray-100 flex items-center justify-between"
+                className="w-full mt-4 text-center text-xs font-semibold text-amber-600 hover:text-amber-700 transition-colors pt-2 border-t border-gray-100 flex items-center justify-between"
               >
                 <span>Lihat semua anggota</span>
                 <span>➔</span>
@@ -357,23 +508,29 @@ export default function ProjectDashboardOnly() {
               <div className="space-y-3 text-xs">
                 <div className="flex justify-between items-center py-0.5">
                   <span className="text-gray-400 font-medium">📅 Deadline</span>
-                  <span className="text-gray-700 font-semibold">20 Agustus 2026</span>
+                  <span className="text-gray-700 font-semibold">{projectData?.deadline ? new Date(projectData.deadline).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Tidak ada'}</span>
                 </div>
                 <div className="flex justify-between items-center py-0.5">
                   <span className="text-gray-400 font-medium">👤 Dibuat oleh</span>
-                  <span className="text-gray-700 font-semibold">Revani Khoirunnisa</span>
+                  <span className="text-gray-700 font-semibold">{teamMembers.find(t => t.role === 'Lead' || t.role === 'Admin')?.name || teamMembers[0]?.name || '-'}</span>
                 </div>
                 <div className="flex justify-between items-center py-0.5">
                   <span className="text-gray-400 font-medium">🕒 Dibuat pada</span>
-                  <span className="text-gray-700 font-semibold">5 Juni 2026</span>
+                  <span className="text-gray-700 font-semibold">{projectData?.created_at ? new Date(projectData.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-'}</span>
                 </div>
                 
                 <div className="pt-2">
                   <span className="text-gray-400 font-medium block mb-2">🏷 Label</span>
                   <div className="flex flex-wrap gap-1.5">
-                    <span className="px-2 py-0.5 bg-blue-50 text-blue-600 font-bold text-[10px] rounded-md">Mobile App</span>
-                    <span className="px-2 py-0.5 bg-green-50 text-green-600 font-bold text-[10px] rounded-md">Health</span>
-                    <span className="px-2 py-0.5 bg-red-50 text-red-600 font-bold text-[10px] rounded-md">High Priority</span>
+                    {projectData?.level && (
+                      <span className="px-2 py-0.5 bg-blue-50 text-blue-600 font-bold text-[10px] rounded-md capitalize">{projectData.level}</span>
+                    )}
+                    {projectData?.status && (
+                      <span className="px-2 py-0.5 bg-green-50 text-green-600 font-bold text-[10px] rounded-md capitalize">{projectData.status.replace('_', ' ')}</span>
+                    )}
+                    {(!projectData?.level && !projectData?.status) && (
+                      <span className="text-gray-400 text-xs italic">Belum ada label</span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -389,7 +546,7 @@ export default function ProjectDashboardOnly() {
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-gray-900">
-                Add New Card to <span className="text-blue-600 uppercase">{activeColumnKey?.replace('_', ' ')}</span>
+                Add New Card to <span className="text-orange-600 uppercase">{activeColumnKey?.replace('_', ' ')}</span>
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
             </div>
@@ -400,7 +557,7 @@ export default function ProjectDashboardOnly() {
                 <input 
                   type="text" required placeholder="contoh: Perbaiki bug halaman utama" value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
               </div>
 
@@ -409,7 +566,7 @@ export default function ProjectDashboardOnly() {
                 <textarea 
                   rows={2} placeholder="Jelaskan detail yang harus dikerjakan" value={newDesc}
                   onChange={(e) => setNewDesc(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
               </div>
 
@@ -418,7 +575,7 @@ export default function ProjectDashboardOnly() {
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Flair / Tag Label</label>
                   <select
                     value={newTag} onChange={(e) => setNewTag(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
                   >
                     {TAG_OPTIONS.map(tag => (
                       <option key={tag.value} value={tag.value}>{tag.value}</option>
@@ -430,7 +587,7 @@ export default function ProjectDashboardOnly() {
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Priority</label>
                   <select
                     value={newPriority} onChange={(e) => setNewPriority(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
                   >
                     {PRIORITY_OPTIONS.map(opt => (
                       <option key={opt.value} value={opt.value}>{opt.value}</option>
@@ -442,20 +599,22 @@ export default function ProjectDashboardOnly() {
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Assign To</label>
                 <div className="max-h-28 overflow-y-auto border border-gray-200 rounded-xl p-2 bg-gray-50 space-y-1">
-                  {DUMMY_USERS.map((user) => {
+                  {teamMembers.map((user) => {
                     const isChecked = newAssignees.includes(user.id);
                     return (
                       <label 
                         key={user.id} 
-                        className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors text-xs ${isChecked ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-100'}`}
+                        className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors text-xs ${isChecked ? 'bg-orange-50 border border-orange-200' : 'hover:bg-gray-100'}`}
                       >
                         <div className="flex items-center gap-2">
-                          <span>{user.avatar}</span>
+                          <div className="w-5 h-5 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+                            {user.avatar?.startsWith('http') ? <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover"/> : user.avatar}
+                          </div>
                           <span className="font-semibold text-gray-700">{user.name}</span>
                         </div>
                         <input 
                           type="checkbox" checked={isChecked} onChange={() => handleToggleAssignee(user.id)}
-                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                         />
                       </label>
                     );
@@ -465,7 +624,7 @@ export default function ProjectDashboardOnly() {
 
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-500 hover:bg-gray-50">Cancel</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-sm shadow-sm transition-colors">Create Task</button>
+                <button type="submit" className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-xl text-sm shadow-sm transition-colors">Create Task</button>
               </div>
             </form>
           </div>
@@ -488,7 +647,7 @@ export default function ProjectDashboardOnly() {
                 <input 
                   type="email" required placeholder="username@company.com" value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none"
                 />
               </div>
 
@@ -496,7 +655,7 @@ export default function ProjectDashboardOnly() {
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-1">Project Role</label>
                 <select
                   value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 focus:outline-none bg-white"
                 >
                   <option value="Member">Member</option>
                   <option value="Admin">Admin</option>
@@ -505,7 +664,7 @@ export default function ProjectDashboardOnly() {
 
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setIsInviteOpen(false)} className="px-4 py-2 border border-gray-200 rounded-xl text-sm text-gray-500 hover:bg-gray-50">Batal</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-sm shadow-sm transition-colors">Kirim Undangan</button>
+                <button type="submit" className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-xl text-sm shadow-sm transition-colors">Kirim Undangan</button>
               </div>
             </form>
           </div>
@@ -517,19 +676,23 @@ export default function ProjectDashboardOnly() {
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
               <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <span>👥</span> Semua Anggota Tim ({DUMMY_USERS.length})
+                <span>👥</span> Semua Anggota Tim ({teamMembers.length})
               </h3>
               <button onClick={() => setIsMembersModalOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
             </div>
 
             <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
-              {DUMMY_USERS.map((user) => (
+              {teamMembers.map((user) => (
                 <div key={user.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-xl transition-colors border border-transparent hover:border-gray-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center text-xl shadow-sm relative">
-                      {user.avatar}
+                    <div className="w-10 h-10 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center text-xl shadow-sm relative overflow-hidden">
+                      {user.avatar?.startsWith('http') ? (
+                        <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                      ) : (
+                        user.avatar || '👤'
+                      )}
                       <span 
-                        className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white ${user.status === 'online' ? 'bg-green-500' : 'bg-amber-400'}`}
+                        className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white z-10 ${user.status === 'online' ? 'bg-green-500' : 'bg-amber-400'}`}
                       ></span>
                     </div>
                     <div>

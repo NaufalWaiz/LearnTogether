@@ -12,6 +12,7 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Clock3,
   FileText,
   GraduationCap,
@@ -46,8 +47,10 @@ import {
   Smartphone,
   Shield
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import React, { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { motion } from "framer-motion";
 
 type TaskStatus = "To Do" | "In Progress" | "Review" | "Done";
 
@@ -183,7 +186,7 @@ const steps = [
       icon: Code2,
       contentTitle: 'Jelajahi Dunia Frontend Dev',
       description: 'Frontend Dev berfokus pada apa yang dilihat pengguna di layar. Kamu akan belajar mengubah desain UI menjadi aplikasi web interaktif yang responsif menggunakan HTML, CSS, JavaScript, hingga framework modern seperti React dan Next.js.',
-      image: '/images/no-icon.png'
+      image: '/images/frontend-icon.png'
     },
     {
       id: 'backend',
@@ -191,7 +194,7 @@ const steps = [
       icon: Database,
       contentTitle: 'Jelajahi Dunia Backend Dev',
       description: 'Backend Dev mengelola logika di balik layar, database, dan server aplikasi. Kamu akan belajar membangun API yang aman, arsitektur database, dan memastikan performa sistem berjalan lancar dan optimal.',
-      image: '/images/no-icon.png'
+      image: '/images/backend-icon.png'
     },
     {
       id: 'mobile',
@@ -199,7 +202,7 @@ const steps = [
       icon: Smartphone,
       contentTitle: 'Jelajahi Dunia Mobile Dev',
       description: 'Mobile Dev berfokus pada pengembangan aplikasi untuk perangkat smartphone (Android & iOS). Pelajari bahasa dan framework populer untuk menciptakan aplikasi mobile yang cepat dan fungsional.',
-      image: '/images/no-icon.png'
+      image: '/images/mobile-icon.png'
     },
     {
       id: 'datascience',
@@ -207,7 +210,7 @@ const steps = [
       icon: PieChart,
       contentTitle: 'Jelajahi Dunia Data Science',
       description: 'Data Science adalah ilmu mengolah data mentah menjadi wawasan berharga menggunakan statistik dan machine learning. Pelajari cara menganalisis data besar untuk membantu pengambilan keputusan strategis.',
-      image: '/images/no-icon.png'
+      image: '/images/data-science-icon.png'
     },
     {
       id: 'cybersecurity',
@@ -215,7 +218,7 @@ const steps = [
       icon: Shield,
       contentTitle: 'Jelajahi Dunia Cyber Security',
       description: 'Cyber Security berfokus pada perlindungan sistem, jaringan, dan data dari serangan digital. Pelajari teknik pengamanan data, analisis celah keamanan, dan mitigasi risiko ancaman siber.',
-      image: '/images/no-icon.png'
+      image: '/images/security-icon.png'
     }
   ];
 
@@ -436,323 +439,485 @@ export default function Home() {
   }
 
   return (
-    <main>
-      <section className="relative min-h-screen w-full bg-[#FCF8FA]" id="home">
-        <Header displayName={displayName} isSignedIn={Boolean(isSignedIn)} />
+    <main className="font-sans antialiased bg-[#FFF5F1] text-slate-900 selection:bg-orange-500 selection:text-white overflow-x-hidden">
+      
+      {/* --- HERO SECTION --- */}
+      <section className="relative min-h-screen w-full flex flex-col justify-center overflow-hidden" id="home">
+        {/* Abstract Background Elements */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-orange-300/30 blur-[120px] mix-blend-multiply"></div>
+          <div className="absolute top-[20%] right-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-300/30 blur-[120px] mix-blend-multiply"></div>
+          <div className="absolute bottom-[-10%] left-[20%] w-[50%] h-[50%] rounded-full bg-amber-200/30 blur-[120px] mix-blend-multiply"></div>
+          <div className="absolute inset-0 bg-[url('/images/grid.svg')] opacity-[0.03]"></div>
+        </div>
 
-        <div className="mx-auto max-w-7xl px-6 py-16 md:py-24 flex flex-col md:flex-row items-center justify-between gap-12">
-          <div className="flex flex-col items-start text-left md:w-1/2 space-y-6">
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight">
+        <div className="absolute top-0 w-full z-50">
+          <Header displayName={displayName} isSignedIn={Boolean(isSignedIn)} />
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-7xl px-6 pt-32 pb-16 md:py-32 flex flex-col md:flex-row items-center justify-between gap-16">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex flex-col items-start text-left md:w-1/2 space-y-8"
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100/50 border border-orange-200 text-orange-700 font-semibold text-sm shadow-sm backdrop-blur-md">
+              <Sparkles size={16} />
+              <span>Platform E-Learning Kolaboratif #1</span>
+            </div>
+
+            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 leading-[1.1]">
               Saatnya mulai <br/>
-              <span className="relative inline-block whitespace-nowrap">
+              <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-emerald-600">
                 Perjalanan Belajarmu
-                <span className="absolute -bottom-4 left-0 w-full h-[20px] border-t-[3px] md:border-t-[4px] border-amber-400 rounded-[50%] rotate-[-2deg]"></span>
+                <motion.svg 
+                  className="absolute w-full h-[30px] -bottom-2 left-0" 
+                  viewBox="0 0 300 20" 
+                  preserveAspectRatio="none"
+                >
+                  <motion.path 
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 1.5, ease: "easeInOut", delay: 0.5 }}
+                    d="M0,10 Q150,20 300,5" 
+                    fill="none" 
+                    stroke="#F59E0B" 
+                    strokeWidth="4" 
+                    strokeLinecap="round" 
+                  />
+                </motion.svg>
               </span>
             </h1>
 
-            <p className="max-w-md text-base md:text-lg text-slate-600 font-normal leading-relaxed">
-              Pelajari UI/UX, Web Development, Cyber Security, AI, dan berbagai bidang teknologi lainnya melalui materi terstruktur  bersama LearningTogether
+            <p className="max-w-xl text-lg md:text-xl text-slate-600 font-medium leading-relaxed">
+              Pelajari UI/UX, Web Development, Cyber Security, AI, dan bidang teknologi lainnya melalui kurikulum interaktif berbasis proyek nyata.
             </p>
 
-            <div className="flex flex-wrap items-center pt-2">
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex flex-wrap items-center pt-4"
+            >
               <a 
-                className="group inline-flex items-center gap-4 transition" 
+                className="group relative inline-flex items-center gap-4 px-8 py-4 bg-slate-900 text-white rounded-full overflow-hidden shadow-xl shadow-orange-900/20 transition-all hover:shadow-orange-900/40 hover:bg-slate-800" 
                 href="/onboarding"
               >
-                <div className="inline-flex items-center justify-center rounded-full bg-[#5562AD] p-3 text-white shadow-md transition group-hover:bg-slate-800">
-                  <ArrowRight size={24} />
-                </div>
-                <span className="text-lg font-bold text-[#5562AD] transition group-hover:text-slate-800">
-                  Baca Selengkapnya
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-emerald-500 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                <span className="text-lg font-bold relative z-10">
+                  Mulai Belajar Sekarang
                 </span>
+                <div className="flex items-center justify-center rounded-full bg-white/20 p-2 relative z-10 group-hover:translate-x-1 transition-transform">
+                  <ArrowRight size={20} />
+                </div>
               </a>
-            </div>  
-          </div>
+            </motion.div>  
+          </motion.div>
 
-          <div className="relative flex justify-center md:w-1/2 w-full">
-            <div className="relative w-full max-w-md md:max-w-lg">
-              <img 
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
+            className="relative flex justify-center md:w-1/2 w-full mt-12 md:mt-0"
+          >
+            <div className="relative w-full max-w-lg aspect-square flex items-center justify-center">
+              {/* Animated decorative ring */}
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 40, ease: "linear" }}
+                className="absolute inset-0 rounded-full border-2 border-dashed border-orange-200/50 scale-[1.15] z-0 pointer-events-none"
+              ></motion.div>
+              <motion.div 
+                animate={{ rotate: -360 }}
+                transition={{ repeat: Infinity, duration: 30, ease: "linear" }}
+                className="absolute inset-4 rounded-full border border-orange-100/50 scale-[1.1] z-0 pointer-events-none"
+              ></motion.div>
+
+              {/* Soft glowing blob behind the image for elegance */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-orange-300/30 to-emerald-300/30 blur-[80px] rounded-full scale-90 pointer-events-none"></div>
+              
+              <motion.img 
+                animate={{ y: [-12, 12, -12] }}
+                transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
                 src="/images/orang-homepage.png" 
                 alt="Learning Illustration" 
-                className="h-auto w-full object-cover"
+                className="w-[95%] h-[95%] object-contain relative z-10 drop-shadow-[0_20px_50px_rgba(0,0,0,0.15)]"
               />
-              
-              <div className="star star-one absolute top-4 left-4 text-xl font-bold text-slate-400">+</div>
-              <div className="star star-two absolute bottom-4 right-4 text-xl font-bold text-slate-400">+</div>
-            </div>
-          </div>
 
+              {/* Floating Badge 1 - Top Left */}
+              <motion.div 
+                animate={{ y: [-10, 10, -10], rotate: [-2, 2, -2] }} 
+                transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut" }} 
+                className="absolute top-[15%] -left-[5%] bg-white/80 backdrop-blur-md p-3.5 rounded-2xl shadow-xl shadow-orange-900/5 border border-white z-20 flex items-center gap-3"
+              >
+                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-500">
+                  <Star className="w-5 h-5 fill-current" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-800">Top Mentor</p>
+                  <p className="text-[10px] font-medium text-slate-500">4.9/5 Rating</p>
+                </div>
+              </motion.div>
+
+              {/* Floating Badge 2 - Bottom Left */}
+              <motion.div 
+                animate={{ y: [15, -15, 15], x: [5, -5, 5] }} 
+                transition={{ repeat: Infinity, duration: 5.5, ease: "easeInOut" }} 
+                className="absolute bottom-[20%] -left-[10%] bg-white p-4 rounded-3xl shadow-2xl shadow-orange-900/10 z-20 flex items-end gap-1.5 h-[80px] border border-slate-50"
+              >
+                <motion.div animate={{ height: ["40%", "80%", "40%"] }} transition={{ repeat: Infinity, duration: 2 }} className="w-2.5 bg-orange-500 rounded-full"></motion.div>
+                <motion.div animate={{ height: ["70%", "30%", "70%"] }} transition={{ repeat: Infinity, duration: 2.2 }} className="w-2.5 bg-emerald-500 rounded-full"></motion.div>
+                <motion.div animate={{ height: ["30%", "100%", "30%"] }} transition={{ repeat: Infinity, duration: 1.8 }} className="w-2.5 bg-amber-500 rounded-full"></motion.div>
+                <motion.div animate={{ height: ["100%", "50%", "100%"] }} transition={{ repeat: Infinity, duration: 2.5 }} className="w-2.5 bg-emerald-500 rounded-full"></motion.div>
+              </motion.div>
+
+              {/* Floating Badge 3 - Middle Right */}
+              <motion.div 
+                animate={{ y: [-15, 15, -15] }} 
+                transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }} 
+                className="absolute top-[40%] -right-[12%] bg-white/90 backdrop-blur-xl px-5 py-4 rounded-2xl shadow-2xl shadow-orange-900/10 border border-white z-20"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <span className="text-sm font-bold text-slate-800">50K+ Active</span>
+                </div>
+                <div className="flex -space-x-3">
+                   <div className="w-8 h-8 rounded-full bg-orange-200 border-2 border-white shadow-sm"></div>
+                   <div className="w-8 h-8 rounded-full bg-emerald-200 border-2 border-white shadow-sm"></div>
+                   <div className="w-8 h-8 rounded-full bg-amber-200 border-2 border-white shadow-sm"></div>
+                   <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600 shadow-sm">+99</div>
+                </div>
+              </motion.div>
+              
+              {/* Little floating orbs */}
+              <motion.div animate={{ y: [-20, 20, -20], x: [10, -10, 10] }} transition={{ repeat: Infinity, duration: 4 }} className="absolute top-[10%] right-[10%] w-6 h-6 rounded-full bg-amber-400 shadow-lg shadow-amber-400/50 z-20"></motion.div>
+              <motion.div animate={{ y: [20, -20, 20], x: [-15, 15, -15] }} transition={{ repeat: Infinity, duration: 5 }} className="absolute bottom-[10%] right-[20%] w-4 h-4 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400/50 z-20"></motion.div>
+              
+            </div>
+          </motion.div>
         </div>
+        
       </section>
 
-      <section className="w-screen bg-[#FCF8FA] pt-16 md:pt-10 relative overflow-hidden left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]" id="dashboard">
-        <div className="absolute inset-0 pointer-events-none opacity-[0.06] text-slate-900 z-0">
-          <Rocket className="absolute top-10 left-8 w-20 h-20" />
-          <Terminal className="absolute bottom-16 left-1/4 w-16 h-16" />
-          <Laptop className="absolute top-12 right-1/4 w-24 h-24" />
-          <GraduationCap className="absolute bottom-10 right-8 w-28 h-28" />
-          <Lightbulb className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20" />
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 w-full" id="bidang">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-16 items-center text-left mb-16">
-            <div className="md:col-span-1 flex justify-center md:justify-start">
-              <div className="w-64 h-64 md:w-full max-w-[240px] aspect-square flex items-center justify-center rounded-2xl relative">
-                <Image 
-                  src="/images/logo.png"
-                  alt="Logo LearningTogether" 
-                  fill
-                  sizes="(max-w-768px) 192px, 240px"
-                  className="object-contain"
-                  priority
-                />
-              </div>
-            </div>
-            <div className="md:col-span-3 space-y-6">
-              <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight text-black">
-                Apa itu <span className="text-[#141586]">Learning</span><span className="text-[#EEC200]">Together?</span>
-              </h2>
-
-              <div className="text-slate-600 text-base md:text-lg leading-relaxed font-normal space-y-4 max-w-3xl">
-                <p>
-                  LearningTogether merupakan platform belajar teknologi yang menyediakan materi interaktif dan learning path terstructured. Kami membantu kamu mempelajari berbagai bidang teknologi secara bertahap agar proses belajar menjadi lebih mudah, terarah, dan menyenangkan.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
-          <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-full max-w-6xl px-6 md:px-12">
-            <div className="w-full flex flex-wrap md:flex-nowrap justify-between items-center">
-              {categories.map((cat) => {
-                const IconComponent = cat.icon;
-                const isActive = activeTab === cat.id;
-                
-                return (
-                  <button
-                    key={cat.id}
-                    onClick={() => setActiveTab(cat.id)}
-                    className={`flex flex-col items-center justify-center flex-1 min-w-[100px] md:min-w-0 text-center font-semibold tracking-wide transition-all duration-300 ease-in-out
-                      ${
-                        isActive 
-                          ? 'bg-[#EEC200] text-white rounded-2xl py-6 px-4 -translate-y-4 scale-105 z-10 shadow-2xl' 
-                          : 'bg-[#6E7CCE] text-white hover:bg-[#5b6bb3] py-4 px-3 rounded-xl'
-                      }`}
-                  >
-                    <IconComponent className={`w-8 h-8 mb-2 ${isActive ? 'text-white' : 'text-white'}`} />
-                    <span className="text-xs md:text-sm">
-                      {cat.title}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="bg-[#5562AD] pt-24 pb-16 px-6 md:px-12">
-            <div className="max-w-6xl mx-auto flex flex-col items-center">
-              
-              <div className="bg-white rounded-3xl p-8 md:p-12 w-full shadow-xl transition-all duration-500 transform">
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-                  
-                  <div className="md:col-span-7 space-y-4 text-left">
-                    <h3 className="text-2xl md:text-3xl font-bold text-slate-900">
-                      {currentCategory.contentTitle}
-                    </h3>
-                    <p className="text-slate-600 text-sm md:text-base leading-relaxed">
-                      {currentCategory.description}
-                    </p>
-                  </div>
-
-                  <div className="md:col-span-5 flex justify-center relative w-full h-48 md:h-64">
-                    <Image 
-                      src="/images/ui-icon.png"
-                      alt={currentCategory.title}
-                      fill
-                      className="object-contain"
-                      loading="lazy"
-                    />
-                  </div>
-
+      {/* --- ABOUT SECTION --- */}
+      <section className="relative w-full bg-white py-24 rounded-t-[3rem] md:rounded-t-[4rem] -mt-12 z-20 shadow-[0_-20px_40px_rgba(0,0,0,0.02)]" id="dashboard">
+        <motion.div 
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+          className="max-w-7xl mx-auto px-6 md:px-12 w-full" id="bidang"
+        >
+          <div className="flex flex-col md:flex-row items-center gap-16 mb-24">
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              className="md:w-5/12 flex justify-center"
+            >
+              <div className="relative w-full max-w-sm aspect-square">
+                <div className="absolute inset-0 bg-orange-500/10 rounded-[3rem] rotate-6 scale-105"></div>
+                <div className="absolute inset-0 bg-white rounded-[3rem] border border-slate-100 shadow-2xl flex items-center justify-center p-8 z-10">
+                  <Image 
+                    src="/images/logo.png"
+                    alt="Logo LearningTogether" 
+                    width={300}
+                    height={300}
+                    className="object-contain drop-shadow-xl"
+                  />
                 </div>
               </div>
-              
-            </div>
+            </motion.div>
             
+            <div className="md:w-7/12 space-y-8">
+              <div className="inline-block px-4 py-1.5 bg-orange-50 rounded-full">
+                <p className="text-orange-600 font-bold text-sm tracking-wide uppercase">Tentang Kami</p>
+              </div>
+              <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 leading-[1.2]">
+                Revolusi Cara Kamu <br/>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-emerald-600">Belajar Teknologi</span>
+              </h2>
+
+              <p className="text-slate-600 text-lg leading-relaxed font-medium">
+                LearningTogether bukan sekadar platform e-learning biasa. Kami menggabungkan 
+                materi berkualitas dengan <strong className="text-slate-900">kolaborasi tim berbasis AI</strong>. 
+                Temukan partner belajarmu, kerjakan proyek nyata, dan bangun portofolio 
+                yang diakui industri.
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
+                {[
+                  { title: "Materi Terstruktur", icon: BookOpen, color: "text-blue-500", bg: "bg-blue-50" },
+                  { title: "AI Team Matching", icon: UsersRound, color: "text-emerald-500", bg: "bg-emerald-50" },
+                  { title: "Project Based", icon: KanbanSquare, color: "text-amber-500", bg: "bg-amber-50" },
+                  { title: "Auto Portfolio", icon: Trophy, color: "text-emerald-500", bg: "bg-emerald-50" },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-4 p-4 rounded-2xl border border-slate-100 bg-white shadow-sm hover:shadow-md transition-shadow">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${item.bg} ${item.color}`}>
+                      <item.icon size={24} />
+                    </div>
+                    <span className="font-bold text-slate-800">{item.title}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
+        </motion.div>
+
+      </section>
+
+      {/* --- CATEGORIES TABS SECTION --- */}
+      <section className="w-full bg-slate-50 py-24 relative overflow-hidden" id="karir">
+        {/* Subtle background texture */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px]"></div>
+        
+        <div className="max-w-7xl mx-auto px-6 md:px-12 w-full relative z-10">
+          
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100/50 text-orange-700 text-sm font-bold tracking-widest uppercase mb-4">
+              <span>Eksplorasi</span>
+            </div>
+            <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">Pilih Jalur <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-emerald-500">Karirmu</span></h3>
+            <p className="text-slate-500 max-w-2xl mx-auto text-lg leading-relaxed">
+              Berbagai bidang spesialisasi yang dirancang khusus mengikuti standar industri teknologi masa kini.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-2 md:gap-3 mb-16">
+            {categories.map((cat) => {
+              const IconComponent = cat.icon;
+              const isActive = activeTab === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveTab(cat.id)}
+                  className={`relative flex items-center gap-2.5 px-6 py-3.5 rounded-2xl font-bold text-sm transition-all duration-300
+                    ${isActive ? 'text-white shadow-lg shadow-orange-200 bg-orange-600 scale-105' : 'text-slate-600 bg-white hover:bg-slate-100 hover:scale-105 border border-slate-200'}`}
+                >
+                  <IconComponent size={18} className={isActive ? 'text-orange-100' : 'text-slate-400'} />
+                  {cat.title}
+                </button>
+              );
+            })}
+          </div>
+
+          <motion.div 
+            key={activeTab}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="w-full"
+          >
+            {/* The Main Elegant Card */}
+            <div className="relative bg-white rounded-[2.5rem] p-8 md:p-12 lg:p-16 border border-slate-100 shadow-[0_20px_80px_-15px_rgba(0,0,0,0.05)] overflow-hidden">
+              
+              {/* Soft background accents inside the card */}
+              <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-bl from-orange-50 via-white to-white rounded-full blur-3xl opacity-70 pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
+              
+              <div className="flex flex-col md:flex-row items-center gap-12 lg:gap-24 relative z-10">
+                
+                {/* Content Section */}
+                <div className="w-full md:w-1/2 space-y-8 text-left order-2 md:order-1">
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50 rounded-xl text-orange-700 text-sm font-bold tracking-wide shadow-sm border border-orange-100/50">
+                    <currentCategory.icon size={18} />
+                    <span>Jalur Spesialisasi</span>
+                  </div>
+                  
+                  <h3 className="text-3xl md:text-5xl font-extrabold text-slate-900 leading-[1.15]">
+                    {currentCategory.contentTitle}
+                  </h3>
+                  
+                  <p className="text-slate-600 text-lg leading-relaxed">
+                    {currentCategory.description}
+                  </p>
+                  
+                  <div className="pt-4 flex flex-wrap gap-4">
+                    <button className="group flex items-center gap-2 px-8 py-4 bg-slate-900 hover:bg-orange-600 text-white rounded-2xl font-bold transition-all duration-300 shadow-xl shadow-slate-200 hover:shadow-orange-200 hover:-translate-y-1">
+                      Lihat Silabus <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Image Section */}
+                <div className="w-full md:w-1/2 flex justify-center order-1 md:order-2">
+                  <motion.div 
+                    animate={{ y: [-10, 10, -10] }}
+                    transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+                    className="relative w-full max-w-[340px] aspect-square rounded-[2.5rem] overflow-hidden bg-[#0F172A] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] border-[8px] border-white group"
+                  >
+                    <Image 
+                      src={currentCategory.image}
+                      alt={currentCategory.title}
+                      fill
+                      className="object-cover transform group-hover:scale-110 transition-transform duration-700"
+                    />
+                    
+                    {/* Subtle inner shadow for depth */}
+                    <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] pointer-events-none rounded-[2rem]"></div>
+                  </motion.div>
+                </div>
+
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      <section className="w-full bg-white pb-20 relative overflow-hidden" id="cara">
-        <div className="relative w-full pointer-events-none select-none z-10">
-          <Image 
-            src="/images/cloud.png" 
-            alt="Cloud decoration" 
-            width={1920}
-            height={400}
-            className="w-full h-auto object-cover object-top"
-            priority
-          />
-        </div>
+      {/* --- CARA MEMULAI SECTION --- */}
+      <section className="w-full bg-slate-50 pt-28 pb-24 relative overflow-hidden rounded-t-[3rem] md:rounded-t-[4rem] -mt-12 z-20" id="cara">
 
-        <div className="max-w-6xl mx-auto text-center relative z-20 px-6 -mt-6 sm:-mt-10 md:-mt-16 lg:-mt-20">
-          <div className="w-full relative h-24 mb-6 overflow-hidden flex items-center z-30">
-            <div className="absolute animate-[marquee_18s_linear_infinite] whitespace-nowrap">
+        <div className="max-w-7xl mx-auto px-6 text-center relative z-20 pt-10">
+          
+          {/* Flying Plane Marquee Improved (Right to Left) */}
+          <div className="w-full relative h-32 mb-4 overflow-hidden flex items-center z-30 opacity-90 pointer-events-none">
+            <motion.div 
+              initial={{ x: "100vw" }}
+              animate={{ x: "-50vw", y: [-15, 15, -15] }}
+              transition={{ 
+                x: { repeat: Infinity, duration: 25, ease: "linear" },
+                y: { repeat: Infinity, duration: 4, ease: "easeInOut" }
+              }}
+              className="absolute left-0"
+            >
               <Image 
                 src="/images/plane.png" 
                 alt="Flying plane" 
-                width={350}
+                width={250}
                 height={120}
-                className="h-16 md:h-20 w-auto object-contain"
+                className="h-20 md:h-24 w-auto object-contain drop-shadow-xl"
               />
-            </div>
+            </motion.div>
           </div>
 
-          {/* Judul dan Deskripsi */}
-          <h2 className="text-2xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">
-            Cara Memulai Perjalanan Belajarmu
-          </h2>
-          <p className="text-slate-500 text-sm md:text-base max-w-2xl mx-auto leading-relaxed mb-16">
-            Mulai belajar hanya dalam beberapa langkah sederhana. Pilih bidang yang kamu minati, 
-            ikuti materi, kerjakan project, dan tingkatkan skill teknologi secara bertahap.
-          </p>
+          <div className="inline-block px-4 py-1.5 bg-amber-100 rounded-full mb-6">
+            <p className="text-amber-700 font-bold text-sm tracking-wide uppercase">Cara Kerja</p>
+          </div>
+          
+          <motion.h2 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight"
+          >
+            Memulai Sangatlah Mudah
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-slate-500 text-lg max-w-2xl mx-auto leading-relaxed mb-20"
+          >
+            Ikuti 4 langkah sederhana ini untuk mentransformasi karirmu di bidang teknologi. Mulai dari belajar dasar hingga portofolio siap kerja.
+          </motion.p>
 
-          <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-6 items-start">
-            <div className="hidden lg:block absolute top-[3.5rem] left-14 right-14 h-[3px] bg-gradient-to-r from-cyan-400 via-purple-400 to-fuchsia-400 z-0" />
-            <div className="flex flex-col items-center relative group">
-              <div className="relative mb-5 z-10">
-                <span className="absolute -top-2 -left-2 w-7 h-7 bg-[#EAB308] text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md z-20">
-                  1
-                </span>
-                <div className="w-28 h-28 bg-[#6B7CE6] rounded-3xl flex items-center justify-center p-5 shadow-lg shadow-indigo-500/20 transition-transform duration-300 group-hover:scale-105">
-                  <Image 
-                    src="/images/dokumen.png" 
-                    alt="Pilih Bidang" 
-                    width={70} 
-                    height={70} 
-                    className="w-full h-full object-contain" 
-                  />
+          <div className="relative grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-6 items-start">
+            {/* Connecting line */}
+            <div className="hidden md:block absolute top-[4rem] left-[10%] right-[10%] h-[2px] bg-slate-200 z-0" />
+            
+            {[
+              {
+                step: 1,
+                title: "Pilih Bidang",
+                desc: "Pilih bidang teknologi sesuai minatmu, dari UI/UX hingga Cyber Security.",
+                img: "/images/dokumen.png",
+                delay: 0.1
+              },
+              {
+                step: 2,
+                title: "Pelajari Materi",
+                desc: "Akses materi terstruktur dan selesaikan tantangan harian.",
+                img: "/images/book.png",
+                delay: 0.3
+              },
+              {
+                step: 3,
+                title: "Bangun Tim & Proyek",
+                desc: "AI akan mencocokkanmu dengan tim untuk membuat proyek nyata.",
+                img: "/images/quiz.png",
+                delay: 0.5
+              },
+              {
+                step: 4,
+                title: "Dapatkan Portofolio",
+                desc: "Sistem otomatis merangkum kontribusimu menjadi portofolio profesional.",
+                img: "/images/scroll.png",
+                delay: 0.7
+              }
+            ].map((item) => (
+              <motion.div 
+                key={item.step}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: item.delay }}
+                className="flex flex-col items-center relative group z-10"
+              >
+                <div className="relative mb-8">
+                  <div className="absolute -top-3 -left-3 w-8 h-8 bg-slate-900 text-white rounded-full flex items-center justify-center text-sm font-bold shadow-lg z-20 group-hover:bg-orange-600 transition-colors">
+                    {item.step}
+                  </div>
+                  <motion.div 
+                    whileHover={{ scale: 1.05, y: -5 }} 
+                    className="w-32 h-32 bg-white rounded-full border border-slate-100 shadow-xl shadow-slate-200/50 flex items-center justify-center p-6 relative overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-orange-50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <Image 
+                      src={item.img} 
+                      alt={item.title} 
+                      width={80} 
+                      height={80} 
+                      className="w-full h-full object-contain relative z-10 drop-shadow-md" 
+                    />
+                  </motion.div>
                 </div>
-              </div>
-              <h3 className="text-base font-bold text-slate-900 mb-2">Pilih Bidang</h3>
-              <p className="text-xs text-slate-500 max-w-[210px] leading-relaxed">
-                Pilih bidang teknologi yang ingin kamu pelajari sesuai minat, mulai dari UI/UX Design, Frontend, Backend, hingga Cyber Security.
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center relative group">
-              <div className="relative mb-5 z-10">
-                <span className="absolute -top-2 -left-2 w-7 h-7 bg-[#EAB308] text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md z-20">
-                  2
-                </span>
-                <div className="w-28 h-28 bg-[#6B7CE6] rounded-3xl flex items-center justify-center p-5 shadow-lg shadow-indigo-500/20 transition-transform duration-300 group-hover:scale-105">
-                  <Image 
-                    src="/images/book.png" 
-                    alt="Pelajari Materi" 
-                    width={70} 
-                    height={70} 
-                    className="w-full h-full object-contain" 
-                  />
-                </div>
-              </div>
-              <h3 className="text-base font-bold text-slate-900 mb-2">Pelajari Materi</h3>
-              <p className="text-xs text-slate-500 max-w-[210px] leading-relaxed">
-                Akses materi pembelajaran yang telah disusun secara bertahap agar proses belajar lebih mudah dipahami.
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center relative group">
-              <div className="relative mb-5 z-10">
-                <span className="absolute -top-2 -left-2 w-7 h-7 bg-[#EAB308] text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md z-20">
-                  3
-                </span>
-                <div className="w-28 h-28 bg-[#6B7CE6] rounded-3xl flex items-center justify-center p-5 shadow-lg shadow-indigo-500/20 transition-transform duration-300 group-hover:scale-105">
-                  <Image 
-                    src="/images/quiz.png" 
-                    alt="Kerjakan Quiz" 
-                    width={70} 
-                    height={70} 
-                    className="w-full h-full object-contain" 
-                  />
-                </div>
-              </div>
-              <h3 className="text-base font-bold text-slate-900 mb-2">Kerjakan Quiz</h3>
-              <p className="text-xs text-slate-500 max-w-[210px] leading-relaxed">
-                Uji pemahamanmu melalui quiz interaktif untuk mengukur perkembangan belajar.
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center relative group">
-              <div className="relative mb-5 z-10">
-                <span className="absolute -top-2 -left-2 w-7 h-7 bg-[#EAB308] text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md z-20">
-                  4
-                </span>
-                <div className="w-28 h-28 bg-[#6B7CE6] rounded-3xl flex items-center justify-center p-5 shadow-lg shadow-indigo-500/20 transition-transform duration-300 group-hover:scale-105">
-                  <Image 
-                    src="/images/scroll.png" 
-                    alt="Selesai Belajar" 
-                    width={70} 
-                    height={70} 
-                    className="w-full h-full object-contain" 
-                  />
-                </div>
-              </div>
-              <h3 className="text-base font-bold text-slate-900 mb-2">Selesai Belajar</h3>
-              <p className="text-xs text-slate-500 max-w-[210px] leading-relaxed">
-                Selesaikan seluruh materi sesuai learning path dan lanjutkan ke topik berikutnya untuk terus meningkatkan kemampuanmu.
-              </p>
-            </div>
-
+                <h3 className="text-xl font-bold text-slate-900 mb-3">{item.title}</h3>
+                <p className="text-sm text-slate-500 max-w-[240px] leading-relaxed">
+                  {item.desc}
+                </p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="w-full bg-white" id="faq">
-        <div className="w-full overflow-hidden leading-[0]">
-          <svg
-            viewBox="0 0 1200 120"
-            preserveAspectRatio="none"
-            className="relative block w-full h-[80px] md:h-[140px]"
-          >
-            <path
-              d="M0,84 C38.3,88 76.6,92 114.9,97 C153.2,101 191.5,104 229.8,107 C268.1,110 306.4,112 344.7,114 C383,116 421.3,117 459.6,117 C497.9,116 536.2,115 574.5,112 C612.8,109 651.1,105 689.4,99 C727.7,91 766,82 804.3,72 C842.6,62 880.9,53 919.1,45 C957.4,39 995.7,33 1034,30 C1072.3,27 1110.6,25 1148.9,25 C1161.7,25 1178.7,25 1200,25 L1200,120 L0,120 Z"
-              fill="#232F8E"
-            />
-          </svg>
-        </div>
-
-        <div className="w-full bg-gradient-to-b from-[#232F8E] from-0% via-[#5562AD] via-[35%] to-[#5562AD] to-100% pb-32 pt-16 px-4 md:px-24 -mt-1">
-          
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-2xl md:text-3xl font-bold text-white tracking-wide font-sans">
-              Frequently Asked Question
+      {/* --- FAQ SECTION --- */}
+      <section className="w-full bg-[#FFF5F1]/60 py-32 relative overflow-hidden rounded-t-[3rem] md:rounded-t-[4rem] -mt-12 z-20" id="faq">
+        <div className="max-w-4xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100/60 text-emerald-700 text-sm font-bold tracking-widest uppercase mb-4">
+              <span>Bantuan</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-slate-900">
+              Punya Pertanyaan?
             </h2>
+            <p className="text-slate-500 text-lg">Temukan jawaban untuk pertanyaan umum tentang platform kami.</p>
           </div>
 
-          <div className="max-w-3xl mx-auto flex flex-col gap-5">
+          <div className="flex flex-col gap-4">
             {faqData.map((faq, index) => {
               const isOpen = openIndex === index;
               return (
                 <div 
                   key={index} 
-                  className="bg-white/15 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden transition-all duration-300 shadow-lg"
+                  className={`rounded-3xl transition-all duration-300 overflow-hidden border ${isOpen ? 'bg-white border-orange-200 shadow-xl shadow-orange-900/5 scale-[1.02]' : 'bg-white/60 border-slate-200 hover:bg-white hover:border-orange-100'}`}
                 >
                   <button
                     onClick={() => toggleAccordion(index)}
-                    className="w-full flex items-center justify-between text-left p-6 text-white font-medium text-sm md:text-base focus:outline-none select-none hover:bg-white/5 transition-colors"
+                    className="w-full flex items-center justify-between text-left p-6 md:p-8 focus:outline-none"
                   >
-                    <span className="opacity-95">{faq.question}</span>
-                    <span className="text-xl font-light ml-4 w-6 text-right">
-                      {isOpen ? '−' : '+'}
-                    </span>
+                    <span className={`font-bold text-lg md:text-xl pr-8 ${isOpen ? 'text-slate-900' : 'text-slate-700'}`}>{faq.question}</span>
+                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${isOpen ? 'rotate-180 bg-orange-500 text-white shadow-md' : 'bg-slate-100 text-slate-400'}`}>
+                      <ChevronRight className={`w-5 h-5 ${isOpen ? 'text-white transform rotate-90' : 'text-slate-500'}`} />
+                    </div>
                   </button>
                   <div
                     className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                      isOpen ? 'max-h-[500px] border-t border-white/10' : 'max-h-0'
+                      isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
                     }`}
                   >
-                    <div className="p-6 text-white/80 text-xs md:text-sm font-normal leading-relaxed bg-white/5">
+                    <div className="p-6 md:p-8 pt-0 text-slate-600 text-base md:text-lg leading-relaxed">
                       {faq.answer}
                     </div>
                   </div>
@@ -763,109 +928,80 @@ export default function Home() {
         </div>
       </section>
 
-        <footer className="w-full bg-[#05012C] text-slate-400 text-sm font-normal pt-16 pb-8 px-6 md:px-24">
-          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8 mb-16">
-            
-            <div className="flex flex-col gap-5">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#5D5FEF] flex items-center justify-center text-white text-lg">
-                  🎓
-                </div>
-                <div>
-                  <h3 className="font-bold text-white text-lg leading-tight">LearningTogether</h3>
-                  <span className="text-[10px] uppercase tracking-wider text-slate-500 block font-bold">Grow Your Skills</span>
-                </div>
-              </div>
-              
-              <p className="leading-relaxed text-slate-400/80 mt-2">
-                201 S. Grand Ave., 1st Floor<br />
-                New York City, NY 28020
-              </p>
-              
-              <div className="flex flex-col gap-1 mt-1">
-                <span className="text-white font-bold text-base">+123 88 9900 456</span>
-                <span className="text-slate-400/80">info@gmail.com</span>
-              </div>
+      {/* --- FOOTER --- */}
+      <footer className="w-full bg-[#2D2F3F] pt-28 pb-12 px-6 md:px-12 relative z-20 rounded-t-[3rem] md:rounded-t-[4rem] -mt-12 overflow-hidden">
+        {/* Soft abstract shapes in footer */}
+        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-orange-500/10 blur-[120px] pointer-events-none"></div>
+        <div className="absolute bottom-[-20%] right-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-500/10 blur-[100px] pointer-events-none"></div>
+
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-12 mb-16 relative z-10">
+          <div className="md:col-span-4 flex flex-col gap-6">
+            <div className="flex items-center bg-white p-3 rounded-2xl w-max shadow-lg">
+              <Image 
+                src="/images/learntogether.png"
+                alt="LearnTogether Logo" 
+                width={180} 
+                height={36} 
+              />
             </div>
-
-            <div>
-              <h4 className="text-white font-bold text-lg mb-2 relative">Useful Links</h4>
-              <div className="w-6 h-[2px] bg-[#5D5FEF] mb-6" />
-              <ul className="flex flex-col gap-3.5 text-slate-400/80">
-                <li><a href="#" className="hover:text-white transition-colors">Our values</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Our advisory board</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Our partners</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Become a partner</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Work at Future Learn</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Quizlet Plus</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold text-lg mb-2 relative">Our Company</h4>
-              <div className="w-6 h-[2px] bg-[#5D5FEF] mb-6" />
-              <ul className="flex flex-col gap-3.5 text-slate-400/80">
-                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Become Teacher</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Instructor</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Events</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="text-white font-bold text-lg mb-2 relative">Newsletter SignUp!</h4>
-              <div className="w-6 h-[2px] bg-[#5D5FEF] mb-6" />
-              <p className="text-slate-400/80 mb-5 leading-relaxed">
-                Get the latest UniCamp news delivered to you inbox
-              </p>
-              
-              <div className="flex w-full rounded-xl overflow-hidden bg-[#161240] p-1 border border-slate-800/50 mb-6 focus-within:border-[#5D5FEF]/50 transition-colors">
-                <input 
-                  type="email" 
-                  placeholder="Type your E-mail" 
-                  className="bg-transparent px-4 py-2 w-full text-white placeholder-slate-500 focus:outline-none text-sm"
-                />
-                <button className="bg-[#FFC633] hover:bg-[#e6b22e] text-slate-950 font-bold text-sm px-5 py-2 rounded-lg transition-colors whitespace-nowrap">
-                  Subscribe
-                </button>
-              </div>
-
-              <div className="flex flex-col gap-2.5">
-                <span className="text-xs font-semibold text-slate-400">Follow Us:</span>
-                <div className="flex items-center gap-4 text-white">
-                  <a href="#" className="hover:text-[#5D5FEF] transition-colors">
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M9 8H7v3h2v9h4v-9h3l.5-3H13V6c0-.5.5-1 1-1h2V2h-3a4 4 0 00-4 4v2z"/></svg>
-                  </a>
-                  <a href="#" className="hover:text-[#5D5FEF] transition-colors">
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 4.6a10 10 0 01-2.9.7 5 5 0 002.2-2.7c-1 .6-2 1-3.1 1.2a5 5 0 00-8.4 4.5A14 14 0 011.6 3.2 5 5 0 003.2 10a5 5 0 01-2.3-.6v.1a5 5 0 004 4.9c-.4.1-.9.1-1.3.1l-1.1-.1a5 5 0 004.7 3.5A10 10 0 010 19.5a14 14 0 007.6 2.2c9.1 0 14-7.6 14-14v-.6A10 10 0 0024 4.6z"/></svg>
-                  </a>
-                  <a href="#" className="hover:text-[#5D5FEF] transition-colors">
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M.06 11.13a10.87 10.87 0 0010.5 11.23h.12a11 11 0 009.6-5.5 10.2 10.2 0 001.2-5c0-4.4-3-8.2-7.2-9a11 11 0 00-11 5.4A11 11 0 000 11c0 .04.02.09.06.13zm2.18-3.41a8.7 8.7 0 0115.15-2.2 8.5 8.5 0 01-1.4 11 8.8 8.8 0 01-11.8.4 8.7 8.7 0 01-2-9.2z"/></svg>
-                  </a>
-                  <a href="#" className="hover:text-[#5D5FEF] transition-colors">
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.05 1.8.25 2.2.4a4 4 0 012.3 2.3c.15.4.35 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.05 1.2-.25 1.8-.4 2.2a4 4 0 01-2.3 2.3c-.4.15-1 .35-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.05-1.8-.25-2.2-.4a4 4 0 01-2.3-2.3c-.15-.4-.35-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.05-1.2.25-1.8.4-2.2a4 4 0 012.3-2.3c.4-.15 1-.35 2.2-.4 1.3-.1 1.7-.1 4.9-.1M12 0C8.7 0 8.3 0 7 .1 5.8.17 4.9.36 4.2.64a6.2 6.2 0 00-4 4C0 5.4.05 6.2.05 7.5c0 3.3 0 3.7.1 5a8.4 8.4 0 00.5 3.3 6.2 6.2 0 004 4c.7.28 1.6.47 2.8.52 1.3.05 1.7.05 5 .05s3.7 0 5-.1c1.2-.05 2.1-.24 2.8-.52a6.2 6.2 0 004-4c.28-.7.47-1.6.52-2.8.05-1.3.05-1.7.05-5s0-3.7-.1-5a8.4 8.4 0 00-.5-3.3 6.2 6.2 0 00-4-4c-.7-.28-1.6-.47-2.8-.52C15.7 0 15.3 0 12 0zm0 5.8a6.2 6.2 0 100 12.4 6.2 6.2 0 000-12.4zm0 10.2a4 4 0 110-8 4 4 0 010 8zm6.4-11a1.4 1.4 0 100 2.8 1.4 1.4 0 000-2.8z"/></svg>
-                  </a>
-                  <a href="#" className="hover:text-[#5D5FEF] transition-colors">
-                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 00.5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 002.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 002.1-2.1c.5-1.9.5-5.8.5-12s0-3.9-.5-5.8zM9.5 15.5V8.5l6.5 3.5-6.5 3.5z"/></svg>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          <div className="w-full h-[1px] bg-slate-800/40 mb-6" />
-
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
-            <p>&copy; 2025 learningtogether.com. All rights reserved.</p>
-            <div className="flex items-center gap-4">
-              <a href="#" className="hover:text-slate-400 transition-colors">Term of Use</a>
-              <span className="text-slate-700">|</span>
-              <a href="#" className="hover:text-slate-400 transition-colors">Privacy Policy</a>
+            <p className="leading-relaxed text-slate-300 text-lg">
+              Platform e-learning kolaboratif berbasis AI yang mengubah cara individu belajar dan membangun karir di dunia teknologi.
+            </p>
+            <div className="flex items-center gap-4 text-slate-300 pt-4">
+              <a href="#" className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-orange-500 hover:border-orange-500 hover:text-white hover:-translate-y-1 transition-all shadow-lg"><Linkedin size={20} /></a>
+              <a href="#" className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-orange-500 hover:border-orange-500 hover:text-white hover:-translate-y-1 transition-all shadow-lg"><svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M24 4.6a10 10 0 01-2.9.7 5 5 0 002.2-2.7c-1 .6-2 1-3.1 1.2a5 5 0 00-8.4 4.5A14 14 0 011.6 3.2 5 5 0 003.2 10a5 5 0 01-2.3-.6v.1a5 5 0 004 4.9c-.4.1-.9.1-1.3.1l-1.1-.1a5 5 0 004.7 3.5A10 10 0 010 19.5a14 14 0 007.6 2.2c9.1 0 14-7.6 14-14v-.6A10 10 0 0024 4.6z"/></svg></a>
+              <a href="#" className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-orange-500 hover:border-orange-500 hover:text-white hover:-translate-y-1 transition-all shadow-lg"><svg className="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
             </div>
           </div>
-        </footer>
+
+          <div className="md:col-span-2 md:col-start-6">
+            <h4 className="text-white font-bold text-xl mb-6">Program</h4>
+            <ul className="flex flex-col gap-4 text-slate-400 font-medium">
+              <li><a href="#" className="hover:text-orange-400 hover:translate-x-1 inline-block transition-transform">UI/UX Design</a></li>
+              <li><a href="#" className="hover:text-orange-400 hover:translate-x-1 inline-block transition-transform">Web Development</a></li>
+              <li><a href="#" className="hover:text-orange-400 hover:translate-x-1 inline-block transition-transform">Data Science</a></li>
+              <li><a href="#" className="hover:text-orange-400 hover:translate-x-1 inline-block transition-transform">Cyber Security</a></li>
+            </ul>
+          </div>
+
+          <div className="md:col-span-2">
+            <h4 className="text-white font-bold text-xl mb-6">Perusahaan</h4>
+            <ul className="flex flex-col gap-4 text-slate-400 font-medium">
+              <li><a href="#" className="hover:text-orange-400 hover:translate-x-1 inline-block transition-transform">Tentang Kami</a></li>
+              <li><a href="#" className="hover:text-orange-400 hover:translate-x-1 inline-block transition-transform">Karir</a></li>
+              <li><a href="#" className="hover:text-orange-400 hover:translate-x-1 inline-block transition-transform">Blog</a></li>
+              <li><a href="#" className="hover:text-orange-400 hover:translate-x-1 inline-block transition-transform">Kontak</a></li>
+            </ul>
+          </div>
+
+          <div className="md:col-span-3">
+            <h4 className="text-white font-bold text-xl mb-6">Newsletter</h4>
+            <p className="text-slate-400 mb-6 leading-relaxed font-medium">
+              Dapatkan informasi terbaru mengenai kursus, beasiswa, dan event teknologi dari kami.
+            </p>
+            <div className="flex w-full rounded-2xl overflow-hidden bg-white/5 p-1.5 border border-white/10 focus-within:border-orange-500/50 transition-colors shadow-inner">
+              <input 
+                type="email" 
+                placeholder="Alamat Email" 
+                className="bg-transparent px-4 py-3 w-full text-white placeholder-slate-500 focus:outline-none text-sm font-medium"
+              />
+              <button className="bg-orange-500 hover:bg-orange-400 text-white font-bold text-sm px-6 py-3 rounded-xl transition-colors whitespace-nowrap shadow-md">
+                Kirim
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent mb-8" />
+
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-slate-500 font-medium relative z-10">
+          <p>&copy; 2026 LearningTogether AI. All rights reserved.</p>
+          <div className="flex items-center gap-6">
+            <a href="#" className="hover:text-white transition-colors">Terms of Use</a>
+            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
@@ -882,18 +1018,18 @@ function OnboardingEntry({ isSignedIn }: { isSignedIn: boolean }) {
         </p>
       </div>
       <div className="onboarding-actions">
-        <a className="primary-action" href="/onboarding">
+        <Link className="primary-action" href="/onboarding">
           <GraduationCap size={17} />
           {isSignedIn ? "Mulai Onboarding" : "Login & Onboarding"}
-        </a>
-        <a className="secondary-action" href="/teams">
+        </Link>
+        <Link className="secondary-action" href="/teams">
           <UsersRound size={17} />
           Join Team
-        </a>
-        <a className="secondary-action" href="/teams/new">
+        </Link>
+        <Link className="secondary-action" href="/teams/new">
           <Plus size={17} />
           Create Team
-        </a>
+        </Link>
       </div>
     </section>
   );
@@ -917,33 +1053,35 @@ function Header({
   ];
 
   return (
-    <header className="w-full h-16 bg-[#FCF8FA] border-b border-gray-100 target-navbar">
-      <div className="mx-auto max-w-[1180px] w-full h-full flex items-center justify-between px-6">
+    <header className="fixed top-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl h-20 bg-white/80 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-full z-50 transition-all duration-300">
+      <div className="mx-auto w-full h-full flex items-center justify-between px-6 md:px-8">
         <a className="flex items-center" href="#home">
           <Image 
             src="/images/learntogether.png"
             alt="LearnTogether Logo" 
-            width={200} 
-            height={40} 
+            width={180} 
+            height={36} 
             loading="eager"
+            className="drop-shadow-sm"
           />
         </a>
 
-        <nav className="hidden md:flex items-center gap-10 text-md font-medium text-gray-600 h-full">
+        <nav className="hidden md:flex items-center gap-8 text-sm font-bold text-slate-600 h-full">
           {navItems.map((item) => {
             const isActive = activeNav === item.name;
             return (
               <a
                 key={item.name}
                 href={item.href}
-                onClick={() => setActiveNav(item.name)} // Set menu aktif saat diklik
-                className={`flex items-center h-8 transition-colors duration-200 hover:text-black relative ${
-                  isActive 
-                    ? "text-[#5562AD] border-b-2 border-[#5562AD] font-semibold" 
-                    : "text-gray-600 border-b-2 border-transparent"
+                onClick={() => setActiveNav(item.name)}
+                className={`relative flex items-center h-full transition-colors duration-300 hover:text-orange-600 ${
+                  isActive ? "text-orange-600" : "text-slate-500"
                 }`}
               >
                 {item.name}
+                {isActive && (
+                  <motion.div layoutId="navIndicator" className="absolute bottom-5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-orange-600 rounded-full"></motion.div>
+                )}
               </a>
             );
           })}
@@ -953,17 +1091,16 @@ function Header({
           {isSignedIn ? (
             <div className="flex items-center gap-2">
               <UserButton />
-              <span className="text-sm font-semibold text-gray-700 hidden sm:inline">{displayName}</span>
+              <span className="text-sm font-semibold text-slate-700 hidden sm:inline">{displayName}</span>
             </div>
           ) : (
             <SignInButton mode="modal">
-              <button className="bg-black text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-gray-800 transition-all whitespace-nowrap">
-                Masuk
+              <button className="bg-orange-500 text-white text-sm font-bold px-7 py-3 rounded-full hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-orange-500/30 transition-all whitespace-nowrap">
+                Mulai Belajar
               </button>
             </SignInButton>
           )}
         </div>
-
       </div>
     </header>
   );
