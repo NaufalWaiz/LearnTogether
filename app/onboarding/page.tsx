@@ -169,12 +169,10 @@ export default function OnboardingPage() {
 
   return (
     <main className="relative min-h-screen w-full bg-gray-50/60 overflow-x-hidden flex flex-col justify-between" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-      {/* CSS internal untuk memastikan scrollbar hilang di Webkit browser */}
       <style>{`
         main::-webkit-scrollbar { display: none; }
       `}</style>
 
-      {/* BACKGROUND ACADEMIC ICONS DECORATION */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0">
         <GraduationCap size={120} className="absolute top-[15%] left-[-2%] text-gray-200/40 -rotate-12 hidden md:block" />
         <Lightbulb size={100} className="absolute top-[45%] right-[-1%] text-yellow-200/30 rotate-12 hidden md:block" />
@@ -184,10 +182,8 @@ export default function OnboardingPage() {
         <Sparkles size={40} className="absolute top-[30%] left-[12%] text-amber-200/50 hidden md:block" />
       </div>
 
-      {/* HEADER NAVBAR */}
       <header className="relative z-10 w-full px-4 py-3 bg-transparent">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          {/* Sisi Kiri: Tombol Back */}
           <button 
             className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors" 
             onClick={() => router.push("/")}
@@ -196,7 +192,6 @@ export default function OnboardingPage() {
             <span>Home</span>
           </button>
 
-          {/* Sisi Kanan: Menu Navigasi & User */}
           <div className="flex items-center gap-5">
             <span className="text-sm text-gray-400 hidden sm:inline cursor-pointer hover:text-gray-600 transition-colors">
               Help Center
@@ -213,10 +208,8 @@ export default function OnboardingPage() {
         </div>
       </header>
 
-      {/* WRAPPER FOR CONTENT TO ENSURE CENTERED ALIGNMENT */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center max-w-4xl w-full mx-auto px-4 py-8">
         
-        {/* HERO SECTION */}
         <section className="text-center w-full max-w-2xl mx-auto mb-8 flex flex-col items-center">
           <span className="inline-block bg-amber-100 text-amber-800 text-[10px] font-bold tracking-wider uppercase px-3 py-1 rounded-full shadow-xs mb-3">
             START YOUR JOURNEY
@@ -228,8 +221,7 @@ export default function OnboardingPage() {
             {stepMeta[currentStep - 1].desc}
           </p>
         </section>
-
-        {/* STEPPER INDICATOR */}
+        
         <div className="flex items-center justify-center w-full max-w-md mx-auto mb-10 px-4">
           {[1, 2, 3, 4].map((step, idx) => (
             <div key={step} className="flex items-center w-full last:w-auto">
@@ -254,10 +246,8 @@ export default function OnboardingPage() {
           ))}
         </div>
 
-        {/* MAIN BOX CARD */}
         <div className="w-full bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 min-h-[380px] flex flex-col justify-between mt-6 transition-all duration-300">
           
-          {/* STEP 1: PILIH BIDANG UTAMA */}
           {currentStep === 1 && (
             <div className="w-full">
               <div className="text-center sm:text-left mb-6">
@@ -267,44 +257,43 @@ export default function OnboardingPage() {
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {expertiseFields.map((field) => {
-                  // Tentukan skema warna berdasarkan field
                   let cardBg = "bg-gray-50/50";
                   let selectedBorder = "border-gray-400 ring-2 ring-gray-100";
                   let iconColor = "text-gray-600";
-                  let IconComponent = Sparkles; // Default fallback
+                  let IconComponent = Sparkles; 
 
                   if (field.includes("Frontend")) {
-                    cardBg = "bg-[#edf5ff]"; // Biru muda pastel
+                    cardBg = "bg-[#edf5ff]"; 
                     selectedBorder = "border-blue-500 ring-4 ring-blue-100";
                     iconColor = "text-blue-500";
                     IconComponent = Code2;
                   } else if (field.includes("Backend")) {
-                    cardBg = "bg-[#eefdf5]"; // Hijau mint pastel
+                    cardBg = "bg-[#eefdf5]";
                     selectedBorder = "border-emerald-500 ring-4 ring-emerald-100";
                     iconColor = "text-emerald-500";
                     IconComponent = Database;
                   } else if (field.includes("UI/UX")) {
-                    cardBg = "bg-[#f5f0ff]"; // Ungu muda pastel
+                    cardBg = "bg-[#f5f0ff]"; 
                     selectedBorder = "border-purple-500 ring-4 ring-purple-100";
                     iconColor = "text-purple-500";
                     IconComponent = Palette;
                   } else if (field.includes("Mobile")) {
-                    cardBg = "bg-[#fff7eb]"; // Oranye/kuning pastel
+                    cardBg = "bg-[#fff7eb]";
                     selectedBorder = "border-amber-500 ring-4 ring-amber-100";
                     iconColor = "text-amber-500";
-                    IconComponent = Smartphone; // Ganti sesuai nama component icon kamu (misal Smartphone/SmartphoneIcon)
+                    IconComponent = Smartphone;
                   } else if (field.includes("Data")) {
-                    cardBg = "bg-[#fff0f5]"; // Pink muda pastel
+                    cardBg = "bg-[#fff0f5]"; 
                     selectedBorder = "border-pink-500 ring-4 ring-pink-100";
                     iconColor = "text-pink-500";
-                    IconComponent = Brain; // Atau ikon AI yang kamu gunakan
+                    IconComponent = Brain;
                   } else if (field.includes("DevOps")) {
-                    cardBg = "bg-[#f1f3f5]"; // Abu-abu pastel
+                    cardBg = "bg-[#f1f3f5]"; 
                     selectedBorder = "border-slate-500 ring-4 ring-slate-100";
                     iconColor = "text-slate-600";
                     IconComponent = Shield;
                   } else if (field.includes("Project")) {
-                    cardBg = "bg-[#f0f9ff]"; // Biru muda pastel
+                    cardBg = "bg-[#f0f9ff]"; 
                     selectedBorder = "border-blue-500 ring-4 ring-blue-100";
                     iconColor = "text-blue-500";
                     IconComponent = FolderOpen;
@@ -323,7 +312,6 @@ export default function OnboardingPage() {
                           : "border-transparent hover:border-gray-300"
                       }`}
                     >
-                      {/* Bagian Icon - Background putih & border sudah dihilangkan */}
                       <div className="inline-block">
                         <IconComponent size={24} className={iconColor} />
                       </div>
@@ -353,7 +341,6 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* STEP 2: SKILL YANG DIKUASAI */}
           {currentStep === 2 && (
           <div className="w-full">
             <div className="text-center sm:text-left mb-6">
@@ -361,7 +348,6 @@ export default function OnboardingPage() {
               <p className="text-xs text-gray-400 mt-0.5">Pilih skill atau software yang setidaknya sudah pernah kamu gunakan atau mengerti dasarnya.</p>
             </div>
             
-            {/* Container Tombol Skill */}
             <div className="flex flex-wrap gap-2 justify-center sm:justify-start mb-8">
               {availableSkills.map((skill) => {
                 const isSelected = selectedSkills.includes(skill);
@@ -385,7 +371,6 @@ export default function OnboardingPage() {
           </div>
         )}
 
-          {/* STEP 3: TENTUKAN LEVEL KEMAMPUAN */}
           {currentStep === 3 && (
             <div className="w-full">
               <div className="text-center sm:text-left mb-6">
@@ -440,7 +425,6 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* STEP 4: TUJUAN BELAJAR & TIM PREFERENCE */}
           {currentStep === 4 && (
             <div className="w-full">
               <div className="text-center sm:text-left mb-6">
@@ -501,14 +485,12 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* STATUS WARNING BOX */}
           {status && (
             <div className="w-full text-xs text-center font-medium mt-4 text-rose-500 bg-rose-50/80 p-3 rounded-xl border border-rose-100 animate-pulse">
               {status}
             </div>
           )}
 
-          {/* BOTTOM STEP NAVIGATION */}
           <div className="flex items-center justify-between border-t border-gray-100 pt-6 mt-8">
             <button
               type="button"
@@ -527,7 +509,7 @@ export default function OnboardingPage() {
               <button
                 type="button"
                 onClick={nextStep}
-                className="px-8 py-3 rounded-full bg-gradient-to-r from-[#1d63dd] via-[#0f3769] to-[#0a1f3d] text-white hover:opacity-95 text-xs sm:text-sm shadow-sm flex items-center gap-1.5 transition-all active:scale-95"
+                className="px-8 py-3 rounded-full bg-[#5562AD] text-white hover:opacity-95 text-xs sm:text-sm shadow-sm flex items-center gap-1.5 transition-all active:scale-95"
               >
                 Lanjut <ArrowRight size={16} />
               </button>
@@ -554,7 +536,6 @@ export default function OnboardingPage() {
         </div>
       </div>
 
-      {/* FOOTER EXTRA SPACE */}
       <footer className="w-full py-4 text-center text-[11px] text-gray-400 relative z-10 select-none">
         &copy; {new Date().getFullYear()} CollabTeam Platform. All rights reserved.
       </footer>

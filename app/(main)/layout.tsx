@@ -16,11 +16,9 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-50">
-      {/* Kirim state isCollapsed ke Sidebar */}
       <Sidebar isCollapsed={isCollapsed} />
       
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Kirim fungsi toggle ke Navbar */}
         <Navbar toggleSidebar={toggleSidebar} isCollapsed={isCollapsed} />
         
         <main className="flex-1 overflow-y-auto p-6">
