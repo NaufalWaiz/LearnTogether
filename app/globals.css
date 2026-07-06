@@ -13,6 +13,8 @@
   --line: #e4e8ee;
 }
 
+
+
 * {
   box-sizing: border-box;
 }
@@ -433,6 +435,8 @@ a {
   top: 195px;
   right: 160px;
 }
+
+
 
 .social-arc::after {
   content: "";

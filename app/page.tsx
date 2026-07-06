@@ -35,9 +35,19 @@ import {
   Medal,
   Star,
   Flame,
-  Lock
+  Lock,
+  Terminal,
+  Laptop,
+  Lightbulb,
+  PieChart,
+  Code2,
+  Palette,
+  Database,
+  Smartphone,
+  Shield
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import Image from 'next/image';
 
 type TaskStatus = "To Do" | "In Progress" | "Review" | "Done";
 
@@ -158,6 +168,103 @@ const steps = [
     }
   ];
 
+  const categories = [
+    {
+      id: 'uiux',
+      title: 'UI/UX Design',
+      icon: Palette,
+      contentTitle: 'Jelajahi Dunia UI/UX Design',
+      description: 'UI/UX Design adalah proses merancang tampilan dan pengalaman pengguna agar sebuah aplikasi atau website menjadi lebih menarik, mudah digunakan, dan memberikan pengalaman terbaik. Di LearningTogether, kamu akan belajar mulai dari konsep dasar hingga praktik melalui materi yang disusun secara bertahap',
+      image: '/images/ui-icon.png'
+    },
+    {
+      id: 'frontend',
+      title: 'Frontend Dev',
+      icon: Code2,
+      contentTitle: 'Jelajahi Dunia Frontend Dev',
+      description: 'Frontend Dev berfokus pada apa yang dilihat pengguna di layar. Kamu akan belajar mengubah desain UI menjadi aplikasi web interaktif yang responsif menggunakan HTML, CSS, JavaScript, hingga framework modern seperti React dan Next.js.',
+      image: '/images/no-icon.png'
+    },
+    {
+      id: 'backend',
+      title: 'Backend Dev',
+      icon: Database,
+      contentTitle: 'Jelajahi Dunia Backend Dev',
+      description: 'Backend Dev mengelola logika di balik layar, database, dan server aplikasi. Kamu akan belajar membangun API yang aman, arsitektur database, dan memastikan performa sistem berjalan lancar dan optimal.',
+      image: '/images/no-icon.png'
+    },
+    {
+      id: 'mobile',
+      title: 'Mobile Developer',
+      icon: Smartphone,
+      contentTitle: 'Jelajahi Dunia Mobile Dev',
+      description: 'Mobile Dev berfokus pada pengembangan aplikasi untuk perangkat smartphone (Android & iOS). Pelajari bahasa dan framework populer untuk menciptakan aplikasi mobile yang cepat dan fungsional.',
+      image: '/images/no-icon.png'
+    },
+    {
+      id: 'datascience',
+      title: 'Data Science',
+      icon: PieChart,
+      contentTitle: 'Jelajahi Dunia Data Science',
+      description: 'Data Science adalah ilmu mengolah data mentah menjadi wawasan berharga menggunakan statistik dan machine learning. Pelajari cara menganalisis data besar untuk membantu pengambilan keputusan strategis.',
+      image: '/images/no-icon.png'
+    },
+    {
+      id: 'cybersecurity',
+      title: 'Cyber Security',
+      icon: Shield,
+      contentTitle: 'Jelajahi Dunia Cyber Security',
+      description: 'Cyber Security berfokus pada perlindungan sistem, jaringan, dan data dari serangan digital. Pelajari teknik pengamanan data, analisis celah keamanan, dan mitigasi risiko ancaman siber.',
+      image: '/images/no-icon.png'
+    }
+  ];
+
+  const faqData = [
+    {
+      question: "Apa itu LearningTogether?",
+      answer: "LearningTogether adalah platform pembelajaran teknologi yang menyediakan materi interaktif di bidang UI/UX Design, Frontend Development, Backend Development, Cyber Security, AI, dan berbagai topik teknologi lainnya. Kamu bisa belajar sesuai minat melalui materi yang terstruktur dan project nyata."
+    },
+    {
+      question: "Apakah saya harus memiliki pengalaman sebelumnya?",
+      answer: "Tidak perlu! Semua materi kami dirancang dari tingkat dasar (beginner-friendly) hingga tingkat lanjut, sehingga siapa pun bisa memulainya dari nol."
+    },
+    {
+      question: "Bidang apa saja yang bisa dipelajari?",
+      answer: "Kamu bisa mempelajari berbagai bidang teknologi populer saat ini seperti UI/UX Design, Frontend Web Development, Backend Development, Cyber Security, Artificial Intelligence (AI), dan masih banyak lagi."
+    },
+    {
+      question: "Apakah saya bisa belajar kapan saja?",
+      answer: "Ya, sistem pembelajaran kami sepenuhnya fleksibel dan online. Kamu dapat mengakses seluruh modul materi dan project kapan saja dan di mana saja sesuai dengan waktu luangmu."
+    }
+  ];
+
+  const testimonialsData = [
+    {
+      name: "Kevin Wijaya",
+      role: "Mahasiswa Informatika",
+      image: "/path-to-kevin-image.jpg", // Ganti dengan path gambar asli
+      imageBg: "bg-sky-200", // Background khusus untuk foto Kevin kiri jika memakai transparan
+      text: "Platform ini sangat membantu saya untuk terus belajar dan mengembangkan kemampuan. Materinya lengkap, mudah diikuti, dan bisa dipelajari sesuai dengan waktu luang.",
+      isFeatured: false
+    },
+    {
+      name: "Alea Zahra",
+      role: "Mahasiswa Informatika",
+      image: "/path-to-alea-image.jpg", // Ganti dengan path gambar asli
+      imageBg: "bg-transparent",
+      text: "Materinya mudah dipahami dan disusun secara bertahap. Saya jadi lebih percaya diri mempelajari UI/UX dan pengembangan web meskipun sebelumnya masih pemula.",
+      isFeatured: true // Kartu tengah dibuat lebih menonjol
+    },
+    {
+      name: "Kevin Wijaya", // Sesuai pada gambar image_38a4e8.png (sisi kanan)
+      role: "Mahasiswa Informatika",
+      image: "/path-to-kevin2-image.jpg", // Ganti dengan path gambar asli
+      imageBg: "bg-zinc-200",
+      text: "Platform ini sangat membantu saya untuk terus belajar dan mengembangkan kemampuan. Materinya lengkap, mudah diikuti, dan bisa dipelajari sesuai dengan waktu luang.",
+      isFeatured: false
+    }
+  ];
+
 const initialScores = {
   Frontend: 78,
   Backend: 42,
@@ -188,6 +295,17 @@ export default function Home() {
   );
   const [feedbackMeta, setFeedbackMeta] = useState("Review mentor AI");
   const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  // 2. State untuk melacak tab aktif
+  const [activeTab, setActiveTab] = useState('uiux');
+
+  const toggleAccordion = (index: number) => {
+    setOpenIndex(openIndex === index ? null : index);
+  };
+
+  // Menemukan konten tab yang sedang aktif
+  const currentCategory = categories.find(cat => cat.id === activeTab) || categories[0];
 
   const averageScore = useMemo(() => {
     const values = Object.values(scores);
@@ -324,41 +442,31 @@ export default function Home() {
 
         <div className="mx-auto max-w-7xl px-6 py-16 md:py-24 flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="flex flex-col items-start text-left md:w-1/2 space-y-6">
-            <div className="inline-flex items-center py-1.5 text-md font-light tracking-widest text-orange-600 uppercase">
-              New Platform
-            </div>
-
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight">
-              Your next <br />
-              <span className="relative inline-block">
-                Online School
+              Saatnya mulai <br/>
+              <span className="relative inline-block whitespace-nowrap">
+                Perjalanan Belajarmu
                 <span className="absolute -bottom-4 left-0 w-full h-[20px] border-t-[3px] md:border-t-[4px] border-amber-400 rounded-[50%] rotate-[-2deg]"></span>
               </span>
             </h1>
 
             <p className="max-w-md text-base md:text-lg text-slate-600 font-normal leading-relaxed">
-              Learn new skills from the comfort of your home or anywhere anytime.
+              Pelajari UI/UX, Web Development, Cyber Security, AI, dan berbagai bidang teknologi lainnya melalui materi terstruktur  bersama LearningTogether
             </p>
 
-            <div className="flex flex-wrap items-center gap-4 pt-2">
+            <div className="flex flex-wrap items-center pt-2">
               <a 
-                className="inline-flex items-center gap-2 rounded-full bg-[#0f9d8a] px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 shadow-md" 
+                className="group inline-flex items-center gap-4 transition" 
                 href="/onboarding"
               >
-                Enroll Now <ArrowRight size={24} />
-              </a>
-              
-              
-              <button 
-                className="inline-flex items-center gap-2 rounded-xl bg-transparent px-4 py-3 text-sm font-semibold text-slate-700 transition hover:text-slate-900"
-                onClick={() => {/* handler video */}}
-              >
-                <div className="rounded-full p-4 bg-red-700">
-                  <Play size={16} className="fill-current text-white" />
+                <div className="inline-flex items-center justify-center rounded-full bg-[#5562AD] p-3 text-white shadow-md transition group-hover:bg-slate-800">
+                  <ArrowRight size={24} />
                 </div>
-                <span className="underline underline-offset-4">Play Video</span>
-              </button>
-            </div>
+                <span className="text-lg font-bold text-[#5562AD] transition group-hover:text-slate-800">
+                  Baca Selengkapnya
+                </span>
+              </a>
+            </div>  
           </div>
 
           <div className="relative flex justify-center md:w-1/2 w-full">
@@ -377,389 +485,283 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="w-full bg-[#FCF8FA] py-10 px-4 md:px-24 relative overflow-hidden" id="dashboard">
-        <div className="bg-[#EDF7FC] py-16 px-4 sm:px-8 rounded-[40px] md:rounded-[60px] relative overflow-hidden">
-          
-          {/* Dekorasi Estetik */}
-          <div className="absolute top-1/2 left-10 -translate-y-1/2 text-slate-300 text-4xl font-light pointer-events-none select-none hidden md:block">
-            ✦ 
+      <section className="w-screen bg-[#FCF8FA] pt-16 md:pt-10 relative overflow-hidden left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]" id="dashboard">
+        <div className="absolute inset-0 pointer-events-none opacity-[0.06] text-slate-900 z-0">
+          <Rocket className="absolute top-10 left-8 w-20 h-20" />
+          <Terminal className="absolute bottom-16 left-1/4 w-16 h-16" />
+          <Laptop className="absolute top-12 right-1/4 w-24 h-24" />
+          <GraduationCap className="absolute bottom-10 right-8 w-28 h-28" />
+          <Lightbulb className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 w-full" id="bidang">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-16 items-center text-left mb-16">
+            <div className="md:col-span-1 flex justify-center md:justify-start">
+              <div className="w-64 h-64 md:w-full max-w-[240px] aspect-square flex items-center justify-center rounded-2xl relative">
+                <Image 
+                  src="/images/logo.png"
+                  alt="Logo LearningTogether" 
+                  fill
+                  sizes="(max-w-768px) 192px, 240px"
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </div>
+            <div className="md:col-span-3 space-y-6">
+              <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight text-black">
+                Apa itu <span className="text-[#141586]">Learning</span><span className="text-[#EEC200]">Together?</span>
+              </h2>
+
+              <div className="text-slate-600 text-base md:text-lg leading-relaxed font-normal space-y-4 max-w-3xl">
+                <p>
+                  LearningTogether merupakan platform belajar teknologi yang menyediakan materi interaktif dan learning path terstructured. Kami membantu kamu mempelajari berbagai bidang teknologi secara bertahap agar proses belajar menjadi lebih mudah, terarah, dan menyenangkan.
+                </p>
+              </div>
+            </div>
           </div>
-          <div className="absolute bottom-4 right-1/4 translate-x-1/2 pointer-events-none select-none hidden md:block opacity-30">
-            <div className="grid grid-cols-4 gap-2">
-              {[...Array(12)].map((_, i) => (
-                <div key={i} className="w-2 h-2 rounded-full bg-slate-400" />
-              ))}
+        </div>
+
+        <div className="relative w-screen left-1/2 right-1/2 -ml-[50vw] -mr-[50vw]">
+          <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-full max-w-6xl px-6 md:px-12">
+            <div className="w-full flex flex-wrap md:flex-nowrap justify-between items-center">
+              {categories.map((cat) => {
+                const IconComponent = cat.icon;
+                const isActive = activeTab === cat.id;
+                
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setActiveTab(cat.id)}
+                    className={`flex flex-col items-center justify-center flex-1 min-w-[100px] md:min-w-0 text-center font-semibold tracking-wide transition-all duration-300 ease-in-out
+                      ${
+                        isActive 
+                          ? 'bg-[#EEC200] text-white rounded-2xl py-6 px-4 -translate-y-4 scale-105 z-10 shadow-2xl' 
+                          : 'bg-[#6E7CCE] text-white hover:bg-[#5b6bb3] py-4 px-3 rounded-xl'
+                      }`}
+                  >
+                    <IconComponent className={`w-8 h-8 mb-2 ${isActive ? 'text-white' : 'text-white'}`} />
+                    <span className="text-xs md:text-sm">
+                      {cat.title}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="max-w-6xl mx-auto text-center">
-            <div className="inline-flex items-center gap-1.5 bg-amber-400 text-slate-950 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
-              <span className="text-sm">✪</span> Learning Journey
-            </div>
-
-            <h2 className="text-2xl md:text-5xl font-extrabold text-[#0F1E36] mb-4 tracking-tight-2">
-              Bagaimana LearningTogether Bekerja?
-            </h2>
-            <p className="text-xs md:text-base text-slate-500 max-w-2xl mx-auto mb-10 md:mb-16 leading-relaxed font-normal">
-              Mulai perjalanan belajarmu dalam empat langkah sederhana, mulai dari mengenali minat hingga membangun proyek nyata bersama komunitas.
-            </p>
-
-            {/* Perubahan Utama di Sini: grid-cols-2 sebagai default (HP) */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 text-left">
-              {steps.map((step, index) => (
-                <div 
-                  key={index} 
-                  className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-sm border border-slate-100/50 flex flex-col justify-between min-h-[280px] sm:min-h-[340px] transition-transform hover:-translate-y-1 duration-300"
-                >
-                  <div>
-                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${step.iconBg} flex items-center justify-center mb-4 sm:mb-6`}>
-                      {step.icon}
-                    </div>
-
-                    <h3 className="text-base sm:text-xl font-bold text-slate-900 mb-2 sm:mb-3 line-clamp-2">
-                      {step.title}
+          <div className="bg-[#5562AD] pt-24 pb-16 px-6 md:px-12">
+            <div className="max-w-6xl mx-auto flex flex-col items-center">
+              
+              <div className="bg-white rounded-3xl p-8 md:p-12 w-full shadow-xl transition-all duration-500 transform">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                  
+                  <div className="md:col-span-7 space-y-4 text-left">
+                    <h3 className="text-2xl md:text-3xl font-bold text-slate-900">
+                      {currentCategory.contentTitle}
                     </h3>
-                    <p className="text-slate-500 text-xs sm:text-sm leading-relaxed font-normal line-clamp-4 sm:line-clamp-none">
-                      {step.description}
+                    <p className="text-slate-600 text-sm md:text-base leading-relaxed">
+                      {currentCategory.description}
                     </p>
                   </div>
 
-                  <div className="mt-4 sm:mt-6">
-                    {step.hasProgress ? (
-                      <div className="w-full">
-                        <div className="flex justify-between text-[10px] sm:text-xs font-bold text-slate-900 mb-1.5">
-                          <span>Progress</span>
-                          <span>80%</span>
-                        </div>
-                        <div className="w-full bg-slate-100 h-1.5 sm:h-2 rounded-full overflow-hidden">
-                          <div className="bg-amber-500 h-full rounded-full w-[80%]" />
-                        </div>
-                      </div>
-                    ) : (
-                      <span className={`inline-flex items-center px-2.5 py-1 sm:px-4 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-semibold border ${step.badgeColor}`}>
-                        {step.badge}
-                      </span>
-                    )}
+                  <div className="md:col-span-5 flex justify-center relative w-full h-48 md:h-64">
+                    <Image 
+                      src="/images/ui-icon.png"
+                      alt={currentCategory.title}
+                      fill
+                      className="object-contain"
+                      loading="lazy"
+                    />
                   </div>
+
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* <div className="section-heading">
-          <span>LearnTogether AI Workspace</span>
-          <h2>Skill profile, matching, team room, feedback, and portfolio in one flow.</h2>
-          <p className="integration-status">{syncStatus}</p>
-        </div>
-
-        <OnboardingEntry isSignedIn={Boolean(isSignedIn)} />
-
-        <div className="workspace-shell">
-          <aside className="workspace-nav" aria-label="App navigation">
-            <div className="workspace-brand">
-              <div className="brand-mark">L</div>
-              <div>
-                <strong>Team Orion</strong>
-                <span>Web Development Sprint</span>
               </div>
+              
             </div>
-            <a href="#dashboard" className="active">
-              <LayoutDashboard size={18} />
-              Dashboard
-            </a>
-            <a href="#assessment">
-              <BarChart3 size={18} />
-              Assessment
-            </a>
-            <a href="#team-room">
-              <UsersRound size={18} />
-              Team Room
-            </a>
-            <a href="#task-board">
-              <KanbanSquare size={18} />
-              Task Board
-            </a>
-            <a href="#portfolio">
-              <Trophy size={18} />
-              Portfolio
-            </a>
-            <a href="/onboarding">
-              <GraduationCap size={18} />
-              Onboarding
-            </a>
-            <a href="/teams">
-              <UsersRound size={18} />
-              Teams
-            </a>
-          </aside>
-
-          <div className="workspace-content">
-            <DashboardSummary
-              averageScore={averageScore}
-              dominantSkill={dominantSkill}
-              progressPercent={progressPercent}
-            />
-
-            <div className="grid-two">
-              <AssessmentPanel scores={scores} onScoreChange={updateScore} />
-              <MatchingPanel dominantSkill={dominantSkill} />
-            </div>
-
-            <TeamRoomPanel />
-            <TaskBoard tasks={tasks} onMoveTask={moveTask} />
-
-            <div className="grid-two">
-              <ProgressPanel
-                progress={progress}
-                blocker={blocker}
-                nextPlan={nextPlan}
-                feedback={aiFeedback}
-                onProgress={setProgress}
-                onBlocker={setBlocker}
-                onNextPlan={setNextPlan}
-                feedbackMeta={feedbackMeta}
-                isLoading={isFeedbackLoading}
-                isSignedIn={Boolean(isSignedIn)}
-                onGenerateFeedback={generateFeedback}
-              />
-              <PortfolioPanel
-                doneCount={doneCount}
-                progressPercent={progressPercent}
-                dominantSkill={dominantSkill}
-              />
-            </div>
+            
           </div>
-        </div> */}
+        </div>
       </section>
 
-      <section className="w-full bg-[#0B1528] py-10 px-4 md:px-24 relative overflow-hidden" id="leaderboard">
-          <div className="w-full bg-[#0B1528] rounded-[40px] p-8 md:p-16 text-white grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative">
-            
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-5 pointer-events-none select-none hidden lg:block">
-              <Trophy size={240} className="text-white" />
+      <section className="w-full bg-white pb-20 relative overflow-hidden" id="cara">
+        <div className="relative w-full pointer-events-none select-none z-10">
+          <Image 
+            src="/images/cloud.png" 
+            alt="Cloud decoration" 
+            width={1920}
+            height={400}
+            className="w-full h-auto object-cover object-top"
+            priority
+          />
+        </div>
+
+        <div className="max-w-6xl mx-auto text-center relative z-20 px-6 -mt-6 sm:-mt-10 md:-mt-16 lg:-mt-20">
+          <div className="w-full relative h-24 mb-6 overflow-hidden flex items-center z-30">
+            <div className="absolute animate-[marquee_18s_linear_infinite] whitespace-nowrap">
+              <Image 
+                src="/images/plane.png" 
+                alt="Flying plane" 
+                width={350}
+                height={120}
+                className="h-16 md:h-20 w-auto object-contain"
+              />
             </div>
+          </div>
 
-            <div className="lg:col-span-6 space-y-8">
-              <div>
-                <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white mb-4">
-                  Top Learners Minggu Ini
-                </h2>
-                <p className="text-slate-400 text-sm md:text-base max-w-md leading-relaxed">
-                  Kumpulkan XP dan raih lencana eksklusif dengan menyelesaikan tantangan mingguan kami.
-                </p>
-              </div>
+          {/* Judul dan Deskripsi */}
+          <h2 className="text-2xl md:text-4xl font-extrabold text-slate-900 mb-4 tracking-tight">
+            Cara Memulai Perjalanan Belajarmu
+          </h2>
+          <p className="text-slate-500 text-sm md:text-base max-w-2xl mx-auto leading-relaxed mb-16">
+            Mulai belajar hanya dalam beberapa langkah sederhana. Pilih bidang yang kamu minati, 
+            ikuti materi, kerjakan project, dan tingkatkan skill teknologi secara bertahap.
+          </p>
 
-              <div className="space-y-4">
-                <div className="bg-[#13223C] border border-slate-800/60 rounded-2xl p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <span className="text-amber-400 font-bold text-lg w-6">#1</span>
-                    <img 
-                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" 
-                      alt="Rakha Sayiddina Al Habsy Waiz Rifqi Sanhenry Agustian Khairunnisa" 
-                      className="w-12 h-12 rounded-full object-cover border-2 border-amber-400/30"
-                    />
-                    <div>
-                      <h4 className="font-bold text-white text-base">Rakha Sayiddina Al Habsy Waiz Rifqi Sanhenry Agustian Khairunnisa</h4>
-                      <p className="text-xs text-slate-400">Frontend Architect</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-amber-400 font-extrabold text-sm md:text-base">12,450 XP</div>
-                    <span className="inline-block bg-[#0A362A] text-[#10B981] text-[10px] font-bold px-2 py-0.5 rounded-md mt-1 uppercase tracking-wider">
-                      Master
-                    </span>
-                  </div>
-                </div>
-
-                <div className="bg-[#13223C] border border-slate-800/60 rounded-2xl p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <span className="text-slate-400 font-bold text-lg w-6">#2</span>
-                    <img 
-                      src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=100&q=80" 
-                      alt="King Nasir" 
-                      className="w-12 h-12 rounded-full object-cover border-2 border-slate-700"
-                    />
-                    <div>
-                      <h4 className="font-bold text-white text-base">King Nasir</h4>
-                      <p className="text-xs text-slate-400">UI Design Specialist</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-amber-400 font-extrabold text-sm md:text-base">11,200 XP</div>
-                    <span className="inline-block bg-[#1E293B] text-[#38BDF8] text-[10px] font-bold px-2 py-0.5 rounded-md mt-1 uppercase tracking-wider">
-                      Elite
-                    </span>
-                  </div>
+          <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-6 items-start">
+            <div className="hidden lg:block absolute top-[3.5rem] left-14 right-14 h-[3px] bg-gradient-to-r from-cyan-400 via-purple-400 to-fuchsia-400 z-0" />
+            <div className="flex flex-col items-center relative group">
+              <div className="relative mb-5 z-10">
+                <span className="absolute -top-2 -left-2 w-7 h-7 bg-[#EAB308] text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md z-20">
+                  1
+                </span>
+                <div className="w-28 h-28 bg-[#6B7CE6] rounded-3xl flex items-center justify-center p-5 shadow-lg shadow-indigo-500/20 transition-transform duration-300 group-hover:scale-105">
+                  <Image 
+                    src="/images/dokumen.png" 
+                    alt="Pilih Bidang" 
+                    width={70} 
+                    height={70} 
+                    className="w-full h-full object-contain" 
+                  />
                 </div>
               </div>
-            </div>
-
-            <div className="lg:col-span-6 bg-[#13223C] border border-slate-800/60 rounded-[32px] p-8 flex flex-col items-center text-center shadow-xl">
-              <div className="w-20 h-20 bg-amber-400 text-[#0B1528] rounded-full flex items-center justify-center mb-6 shadow-lg shadow-amber-400/10">
-                <Medal className="w-10 h-10" strokeWidth={2.5} />
-              </div>
-
-              <h3 className="text-xl font-bold text-white mb-2">Koleksi Lencana</h3>
-              <p className="text-slate-400 text-xs md:text-sm max-w-xs mb-8">
-                Selesaikan kursus untuk membuka koleksi ini
+              <h3 className="text-base font-bold text-slate-900 mb-2">Pilih Bidang</h3>
+              <p className="text-xs text-slate-500 max-w-[210px] leading-relaxed">
+                Pilih bidang teknologi yang ingin kamu pelajari sesuai minat, mulai dari UI/UX Design, Frontend, Backend, hingga Cyber Security.
               </p>
+            </div>
 
-              <div className="grid grid-cols-3 gap-8 md:gap-12 mb-8 w-full max-w-sm">
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 rounded-full bg-[#1A2E4C] border border-slate-700/50 flex items-center justify-center opacity-40">
-                    <Lock className="w-5 h-5 text-slate-300" strokeWidth={2} />
-                  </div>
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500">Sprint</span>
-                </div>
-
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 rounded-full bg-amber-400 text-[#0B1528] flex items-center justify-center shadow-md shadow-amber-400/20">
-                    <Star className="w-5 h-5 fill-current" />
-                  </div>
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-amber-400">Top 5%</span>
-                </div>
-
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-12 h-12 rounded-full bg-[#1A2E4C] border border-slate-700/50 flex items-center justify-center opacity-40">
-                    <Flame className="w-5 h-5 text-slate-300" strokeWidth={2} />
-                  </div>
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500">Streak</span>
+            <div className="flex flex-col items-center relative group">
+              <div className="relative mb-5 z-10">
+                <span className="absolute -top-2 -left-2 w-7 h-7 bg-[#EAB308] text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md z-20">
+                  2
+                </span>
+                <div className="w-28 h-28 bg-[#6B7CE6] rounded-3xl flex items-center justify-center p-5 shadow-lg shadow-indigo-500/20 transition-transform duration-300 group-hover:scale-105">
+                  <Image 
+                    src="/images/book.png" 
+                    alt="Pelajari Materi" 
+                    width={70} 
+                    height={70} 
+                    className="w-full h-full object-contain" 
+                  />
                 </div>
               </div>
-
-              <button className="w-full py-3 px-6 rounded-xl border border-slate-700 bg-[#1A2E4C] text-slate-300 text-sm font-semibold hover:bg-slate-800 transition-colors duration-200">
-                Lihat Semua Reward
-              </button>
+              <h3 className="text-base font-bold text-slate-900 mb-2">Pelajari Materi</h3>
+              <p className="text-xs text-slate-500 max-w-[210px] leading-relaxed">
+                Akses materi pembelajaran yang telah disusun secara bertahap agar proses belajar lebih mudah dipahami.
+              </p>
             </div>
-          </div>
-        </section>
 
-        <section className="w-full bg-white py-24 px-4 md:px-24" id="testimony">
-          <div className="max-w-6xl mx-auto text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-[#0F1E36] mb-3 tracking-tight">
-              Apa Kata Pengguna
+            <div className="flex flex-col items-center relative group">
+              <div className="relative mb-5 z-10">
+                <span className="absolute -top-2 -left-2 w-7 h-7 bg-[#EAB308] text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md z-20">
+                  3
+                </span>
+                <div className="w-28 h-28 bg-[#6B7CE6] rounded-3xl flex items-center justify-center p-5 shadow-lg shadow-indigo-500/20 transition-transform duration-300 group-hover:scale-105">
+                  <Image 
+                    src="/images/quiz.png" 
+                    alt="Kerjakan Quiz" 
+                    width={70} 
+                    height={70} 
+                    className="w-full h-full object-contain" 
+                  />
+                </div>
+              </div>
+              <h3 className="text-base font-bold text-slate-900 mb-2">Kerjakan Quiz</h3>
+              <p className="text-xs text-slate-500 max-w-[210px] leading-relaxed">
+                Uji pemahamanmu melalui quiz interaktif untuk mengukur perkembangan belajar.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-center relative group">
+              <div className="relative mb-5 z-10">
+                <span className="absolute -top-2 -left-2 w-7 h-7 bg-[#EAB308] text-white rounded-full flex items-center justify-center text-xs font-bold shadow-md z-20">
+                  4
+                </span>
+                <div className="w-28 h-28 bg-[#6B7CE6] rounded-3xl flex items-center justify-center p-5 shadow-lg shadow-indigo-500/20 transition-transform duration-300 group-hover:scale-105">
+                  <Image 
+                    src="/images/scroll.png" 
+                    alt="Selesai Belajar" 
+                    width={70} 
+                    height={70} 
+                    className="w-full h-full object-contain" 
+                  />
+                </div>
+              </div>
+              <h3 className="text-base font-bold text-slate-900 mb-2">Selesai Belajar</h3>
+              <p className="text-xs text-slate-500 max-w-[210px] leading-relaxed">
+                Selesaikan seluruh materi sesuai learning path dan lanjutkan ke topik berikutnya untuk terus meningkatkan kemampuanmu.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <section className="w-full bg-white" id="faq">
+        <div className="w-full overflow-hidden leading-[0]">
+          <svg
+            viewBox="0 0 1200 120"
+            preserveAspectRatio="none"
+            className="relative block w-full h-[80px] md:h-[140px]"
+          >
+            <path
+              d="M0,84 C38.3,88 76.6,92 114.9,97 C153.2,101 191.5,104 229.8,107 C268.1,110 306.4,112 344.7,114 C383,116 421.3,117 459.6,117 C497.9,116 536.2,115 574.5,112 C612.8,109 651.1,105 689.4,99 C727.7,91 766,82 804.3,72 C842.6,62 880.9,53 919.1,45 C957.4,39 995.7,33 1034,30 C1072.3,27 1110.6,25 1148.9,25 C1161.7,25 1178.7,25 1200,25 L1200,120 L0,120 Z"
+              fill="#232F8E"
+            />
+          </svg>
+        </div>
+
+        <div className="w-full bg-gradient-to-b from-[#232F8E] from-0% via-[#5562AD] via-[35%] to-[#5562AD] to-100% pb-32 pt-16 px-4 md:px-24 -mt-1">
+          
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <h2 className="text-2xl md:text-3xl font-bold text-white tracking-wide font-sans">
+              Frequently Asked Question
             </h2>
-            <p className="text-sm md:text-base text-slate-500 font-normal">
-              Cerita sukses dari mereka yang telah bergabung.
-            </p>
           </div>
 
-          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-6 md:gap-4 mb-16">
-            
-            <div className="bg-white rounded-[40px] p-8 shadow-xl shadow-slate-100 border border-slate-50 w-full md:w-[32%] min-h-[280px] flex flex-col justify-between md:scale-90 md:translate-x-4 z-10">
-              <div>
-                <div className="flex items-center gap-4 mb-4">
-                  <img 
-                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&h=150&q=80" 
-                    alt="Maya Pratiwi" 
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-base">Maya Pratiwi</h4>
-                    <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                      Student
+          <div className="max-w-3xl mx-auto flex flex-col gap-5">
+            {faqData.map((faq, index) => {
+              const isOpen = openIndex === index;
+              return (
+                <div 
+                  key={index} 
+                  className="bg-white/15 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden transition-all duration-300 shadow-lg"
+                >
+                  <button
+                    onClick={() => toggleAccordion(index)}
+                    className="w-full flex items-center justify-between text-left p-6 text-white font-medium text-sm md:text-base focus:outline-none select-none hover:bg-white/5 transition-colors"
+                  >
+                    <span className="opacity-95">{faq.question}</span>
+                    <span className="text-xl font-light ml-4 w-6 text-right">
+                      {isOpen ? '−' : '+'}
                     </span>
-                  </div>
-                </div>
-                <div className="flex text-amber-400 gap-0.5 mb-4 text-sm">
-                  <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-                </div>
-                <p className="text-slate-600 text-sm italic font-medium leading-relaxed">
-                  &ldquo;Materi sangat mudah dipahami bahkan untuk pemula seperti saya.&rdquo;
-                </p>
-              </div>
-              <div className="flex gap-2 mt-6">
-                {['HTML', 'CSS', 'JS'].map((tech) => (
-                  <span key={tech} className="bg-slate-100 text-slate-600 text-xs px-3 py-1 rounded-full font-medium">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-[#0F172A] text-white rounded-[40px] p-10 shadow-2xl shadow-slate-900/20 w-full md:w-[36%] min-h-[320px] flex flex-col justify-between relative z-20 md:scale-105">
-              <div>
-                <div className="flex items-center gap-4 mb-6">
-                  <img 
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80" 
-                    alt="Robby Hermawan" 
-                    className="w-14 h-14 rounded-full object-cover border-2 border-amber-400"
-                  />
-                  <div>
-                    <h4 className="font-bold text-white text-lg">Robby Hermawan</h4>
-                    <div className="flex gap-2 mt-1">
-                      <span className="bg-[#00A884] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                        Top Mentor
-                      </span>
-                      <span className="bg-slate-800 text-slate-400 text-[10px] font-medium px-2.5 py-0.5 rounded-full">
-                        100+ Session
-                      </span>
+                  </button>
+                  <div
+                    className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                      isOpen ? 'max-h-[500px] border-t border-white/10' : 'max-h-0'
+                    }`}
+                  >
+                    <div className="p-6 text-white/80 text-xs md:text-sm font-normal leading-relaxed bg-white/5">
+                      {faq.answer}
                     </div>
                   </div>
                 </div>
-                <p className="text-slate-300 text-sm md:text-base leading-relaxed font-normal">
-                  &ldquo;Melihat antusiasme para pelajar di sini membuat saya semakin semangat berbagi ilmu. Ekosistem belajarnya sangat mendukung pertumbuhan karir.&rdquo;
-                </p>
-              </div>
-              <div className="w-full h-[3px] bg-gradient-to-r from-amber-400 to-transparent rounded-full mt-6" />
-            </div>
-
-            <div className="bg-white rounded-[40px] p-8 shadow-xl shadow-slate-100 border border-slate-50 w-full md:w-[32%] min-h-[280px] flex flex-col justify-between md:scale-90 md:-translate-x-4 z-10">
-              <div>
-                <div className="flex items-center gap-4 mb-4">
-                  <img 
-                    src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=150&h=150&q=80" 
-                    alt="Dimas Saputra" 
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div>
-                    <h4 className="font-bold text-slate-900 text-base">Dimas Saputra</h4>
-                    <span className="bg-cyan-100 text-cyan-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">
-                      Alumni
-                    </span>
-                  </div>
-                </div>
-                <div className="flex text-amber-400 gap-0.5 mb-4 text-sm">
-                  <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-                </div>
-                <p className="text-slate-600 text-sm italic font-medium leading-relaxed">
-                  &ldquo;Berkat portofolio yang saya bangun di sini, saya berhasil mendapatkan pekerjaan pertama saya.&rdquo;
-                </p>
-              </div>
-              <div className="flex gap-2 mt-6">
-                {['React', 'Next.js'].map((tech) => (
-                  <span key={tech} className="bg-slate-100 text-slate-600 text-xs px-3 py-1 rounded-full font-medium">
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-
+              );
+            })}
           </div>
-
-          <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-8">
-            <div className="bg-[#EDF2FE] border border-blue-200/50 rounded-full py-4 px-6 flex flex-col items-center justify-center text-center">
-              <span className="text-xl md:text-2xl font-black text-blue-600 tracking-tight">5.000+</span>
-              <span className="text-[10px] font-bold text-blue-400 tracking-wider uppercase mt-0.5">Pelajar Aktif</span>
-            </div>
-
-            <div className="bg-[#FFF7ED] border border-amber-200/50 rounded-full py-4 px-6 flex flex-col items-center justify-center text-center">
-              <span className="text-xl md:text-2xl font-black text-amber-600 tracking-tight">100+</span>
-              <span className="text-[10px] font-bold text-amber-500/80 tracking-wider uppercase mt-0.5">Mentor</span>
-            </div>
-
-            <div className="bg-[#E6F7F4] border border-teal-200/50 rounded-full py-4 px-6 flex flex-col items-center justify-center text-center">
-              <span className="text-xl md:text-2xl font-black text-teal-600 tracking-tight">300+</span>
-              <span className="text-[10px] font-bold text-teal-500 tracking-wider uppercase mt-0.5">Tim Proyek</span>
-            </div>
-
-            <div className="bg-[#FCE8F3] border border-pink-200/50 rounded-full py-4 px-6 flex flex-col items-center justify-center text-center">
-              <span className="text-xl md:text-2xl font-black text-pink-600 tracking-tight">20.000+</span>
-              <span className="text-[10px] font-bold text-pink-400 tracking-wider uppercase mt-0.5">XP Dibagikan</span>
-            </div>
-          </div>
-        </section>
+        </div>
+      </section>
 
         <footer className="w-full bg-[#05012C] text-slate-400 text-sm font-normal pt-16 pb-8 px-6 md:px-24">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8 mb-16">
@@ -907,18 +909,24 @@ function Header({
   const [activeNav, setActiveNav] = useState("Home");
 
   const navItems = [
-    { name: "Home", href: "#home" },
-    { name: "Trending", href: "#trending" },
-    { name: "Courses", href: "#courses" },
-    { name: "Teachers", href: "#teachers" },
+    { name: "Beranda", href: "#home" },
+    { name: "Bidang", href: "#bidang" },
+    { name: "Cara Kerja", href: "#cara" },
+    { name: "FAQ", href: "#faq" },
     { name: "About", href: "#about" },
   ];
 
   return (
     <header className="w-full h-16 bg-[#FCF8FA] border-b border-gray-100 target-navbar">
       <div className="mx-auto max-w-[1180px] w-full h-full flex items-center justify-between px-6">
-        <a className="text-3xl font-extrabold text-black tracking-tight whitespace-nowrap" href="#home">
-          LearnTogether
+        <a className="flex items-center" href="#home">
+          <Image 
+            src="/images/learntogether.png"
+            alt="LearnTogether Logo" 
+            width={200} 
+            height={40} 
+            loading="eager"
+          />
         </a>
 
         <nav className="hidden md:flex items-center gap-10 text-md font-medium text-gray-600 h-full">
@@ -931,7 +939,7 @@ function Header({
                 onClick={() => setActiveNav(item.name)} // Set menu aktif saat diklik
                 className={`flex items-center h-8 transition-colors duration-200 hover:text-black relative ${
                   isActive 
-                    ? "text-black border-b-2 border-black font-semibold" 
+                    ? "text-[#5562AD] border-b-2 border-[#5562AD] font-semibold" 
                     : "text-gray-600 border-b-2 border-transparent"
                 }`}
               >
@@ -942,15 +950,6 @@ function Header({
         </nav>
 
         <div className="flex items-center gap-4">
-          <div className="relative flex items-center bg-gray-50 border border-gray-200 rounded-full px-3 py-1.5 focus-within:border-gray-400 transition-all">
-            <Search size={14} className="text-gray-400 mr-2" />
-            <input 
-              aria-label="Search" 
-              placeholder="Search..." 
-              className="bg-transparent text-sm text-black outline-none w-40 md:w-48 placeholder-gray-400"
-            />
-          </div>
-
           {isSignedIn ? (
             <div className="flex items-center gap-2">
               <UserButton />
