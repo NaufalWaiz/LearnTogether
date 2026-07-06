@@ -151,7 +151,7 @@ export default function OnboardingPage() {
           </div>
           <h1 className="text-xl font-bold text-gray-900">Lengkapi Profil Skill</h1>
           <p className="text-sm text-gray-500 leading-relaxed">Login dulu untuk menyimpan skill dan membuat atau join team.</p>
-          <SignInButton mode="modal">
+          <SignInButton mode="modal" forceRedirectUrl="/dashboard">
             <button className="w-full py-3 px-4 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-semibold flex items-center justify-center gap-2 transition-all shadow-md">
               Login <ArrowRight size={17} />
             </button>

@@ -1095,7 +1095,7 @@ function Header({
               <span className="text-sm font-semibold text-slate-700 hidden sm:inline">{displayName}</span>
             </div>
           ) : (
-            <SignInButton mode="modal">
+            <SignInButton mode="modal" forceRedirectUrl="/dashboard">
               <button className="bg-orange-500 text-white text-sm font-bold px-7 py-3 rounded-full hover:bg-orange-600 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-orange-500/30 transition-all whitespace-nowrap">
                 Mulai Belajar
               </button>
@@ -1169,7 +1169,7 @@ function HeroMosaic() {
       <div className="mosaic-cell portrait portrait-main" />
       <div className="mosaic-cell soft middle-right">
         <p>Education Beyond Boundaries</p>
-        <SignInButton mode="modal">
+        <SignInButton mode="modal" forceRedirectUrl="/dashboard">
           <button>Login</button>
         </SignInButton>
       </div>
