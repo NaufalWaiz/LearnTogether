@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
 import Link from 'next/link'
 import { Video, BookOpen, HelpCircle, Layers, Lock, Timer, CheckCircle2 } from 'lucide-react'

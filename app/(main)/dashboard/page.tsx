@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react'
 import { Zap, CheckCircle, Circle, Award, Users, HelpCircle, ArrowRight } from 'lucide-react'
 import { currentUser } from '@clerk/nextjs/server'

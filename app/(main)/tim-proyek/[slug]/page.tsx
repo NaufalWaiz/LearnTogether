@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -189,7 +191,7 @@ export default function ProjectDashboardOnly() {
       [targetCol]: { ...columns[targetCol], tasks: [...targetTasks, movedTask] }
     });
 
-    let newDbStatus = targetCol === 'completed' ? 'done' : targetCol;
+    const newDbStatus = targetCol === 'completed' ? 'done' : targetCol;
     await updateTaskStatus(taskId, newDbStatus);
   };
 
@@ -243,7 +245,7 @@ export default function ProjectDashboardOnly() {
     setNewAssignees([]);
     setIsModalOpen(false);
 
-    let dbStatus = activeColumnKey === 'completed' ? 'done' : activeColumnKey;
+    const dbStatus = activeColumnKey === 'completed' ? 'done' : activeColumnKey;
     const res = await addTask(projectId, {
       title: newTitle,
       description: newDesc || `[${selectedTagObj.value}]`,

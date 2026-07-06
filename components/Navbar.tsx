@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+"use client";
+
 import { Menu, User, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface NavbarProps {

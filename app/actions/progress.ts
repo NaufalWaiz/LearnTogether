@@ -13,7 +13,7 @@ export async function markLessonComplete(courseSlug: string, lessonId: string) {
     // Cookie Fallback Strategy (Works even if not logged in)
     const cookieStore = await cookies();
     const cookieProgressStr = cookieStore.get(`progress_${courseSlug}`)?.value;
-    let cookieProgress: string[] = cookieProgressStr ? JSON.parse(cookieProgressStr) : [];
+    const cookieProgress: string[] = cookieProgressStr ? JSON.parse(cookieProgressStr) : [];
     if (!cookieProgress.includes(lessonId)) {
       cookieProgress.push(lessonId);
       cookieStore.set(`progress_${courseSlug}`, JSON.stringify(cookieProgress));
@@ -36,7 +36,7 @@ export async function markLessonComplete(courseSlug: string, lessonId: string) {
           .eq('course_slug', courseSlug)
           .single();
           
-        let completedLessons: string[] = progress?.completed_lessons || [];
+        const completedLessons: string[] = progress?.completed_lessons || [];
         if (!completedLessons.includes(lessonId)) {
           completedLessons.push(lessonId);
           await supabase.from('user_course_progress').upsert({
@@ -47,7 +47,7 @@ export async function markLessonComplete(courseSlug: string, lessonId: string) {
           }, { onConflict: 'user_id, course_slug' });
         }
       }
-      } catch (dbError) {
+      } catch {
         console.warn("DB offline, using cookie fallback only.");
       }
     }
