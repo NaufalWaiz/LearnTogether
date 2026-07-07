@@ -8,14 +8,19 @@ const ai = new GoogleGenAI({ apiKey });
 export async function generateRingkasan(lessonTitle: string, courseTitle: string) {
   try {
     const prompt = `Buatkan ringkasan materi yang detail, terstruktur, dan mudah dipahami dalam bahasa Indonesia untuk materi pembelajaran berjudul "${lessonTitle}" yang merupakan bagian dari kursus "${courseTitle}".
-Format menggunakan Markdown. Jangan terlalu panjang, sekitar 3-4 paragraf yang sangat informatif, dan berikan poin-poin penting (bullet points).`;
+Format murni menggunakan Markdown (heading, list, bold) tanpa dibungkus dengan markdown code block (tanpa \`\`\`markdown). Jangan terlalu panjang, sekitar 3-4 paragraf yang sangat informatif, dan berikan poin-poin penting.`;
     
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
     });
     
-    return { success: true, text: response.text };
+    let cleanText = response.text || '';
+    
+    // Hilangkan bungkus ```markdown ... ``` jika AI masih bandel mengirimkannya
+    cleanText = cleanText.replace(/^```markdown\s*/gi, '').replace(/```\s*$/g, '');
+    
+    return { success: true, text: cleanText };
   } catch (error) {
     console.error("AI Error:", error);
     return { success: false, text: "Maaf, sistem AI sedang mengalami gangguan. Silakan coba lagi nanti." };

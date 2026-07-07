@@ -73,11 +73,20 @@ export default function Sidebar({ isCollapsed }: SidebarProps) {
         `}
       >
         {/* Header / Logo */}
-        <div className="flex h-20 items-center px-6 border-b border-slate-50 justify-between">
-          <span className={`font-bold text-slate-900 tracking-tight transition-opacity duration-200 ${isCollapsed ? "md:hidden" : "block"}`}>
-            LearningTogether
-          </span>
-          {isCollapsed && <span className="hidden md:block font-black text-amber-500 text-xl mx-auto">LT</span>}
+        <div className="flex h-[72px] items-center px-6 border-b border-slate-200/60 justify-between">
+          <Link href="/dashboard" className={`flex items-center gap-3 transition-opacity duration-200 ${isCollapsed ? "md:hidden" : "block"}`}>
+            <div className="flex items-center justify-center bg-gradient-to-br from-orange-500 to-amber-500 text-white p-1.5 rounded-lg shadow-sm">
+              <Flame size={20} className="fill-current" />
+            </div>
+            <span className="font-extrabold text-slate-900 tracking-tight text-lg">
+              Learn<span className="text-orange-500">Together</span>
+            </span>
+          </Link>
+          {isCollapsed && (
+            <Link href="/dashboard" className="hidden md:flex items-center justify-center bg-gradient-to-br from-orange-500 to-amber-500 text-white p-2 rounded-xl shadow-sm mx-auto">
+              <Flame size={20} className="fill-current" />
+            </Link>
+          )}
           <button onClick={() => setIsOpenMobile(false)} className="md:hidden text-slate-400 hover:text-slate-600">
             <X className="h-5 w-5" />
           </button>

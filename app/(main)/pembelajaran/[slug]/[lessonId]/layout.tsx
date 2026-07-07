@@ -76,17 +76,25 @@ export default async function LessonLayout({ children, params }: LessonLayoutPro
       )}
 
       {/* Grid Layout Konten Belajar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        {/* LEFT AREA: Konten Dinamis dari [step]/page.tsx */}
-        <div className="lg:col-span-2">
-          {children}
+      <div className="flex flex-col lg:flex-row gap-8 items-start">
+        {/* LEFT AREA: Konten Dinamis */}
+        <div className="flex-1 w-full min-w-0">
+          <div className="bg-white border border-slate-200/60 rounded-3xl shadow-sm p-2">
+            {children}
+          </div>
         </div>
 
         {/* RIGHT SIDEBAR: Menu Step yang di-lock/unlock sesuai gambar */}
-        <div className="bg-white border border-zinc-200 rounded-[2rem] p-6 shadow-sm sticky top-6">
-          <h2 className="text-base font-extrabold text-zinc-800 mb-4 tracking-tight">Lesson {lessonId}</h2>
+        <div className="w-full lg:w-[320px] shrink-0 bg-white border border-slate-200/60 rounded-3xl p-6 shadow-sm sticky top-24">
+          <h2 className="text-base font-extrabold text-slate-800 mb-5 tracking-tight flex items-center gap-2">
+            <Layers className="text-orange-500 h-5 w-5" />
+            Lesson {lessonId}
+          </h2>
           
-          <div className="space-y-3">
+          <div className="space-y-3 relative">
+            {/* Decorative timeline line */}
+            <div className="absolute left-[22px] top-4 bottom-4 w-0.5 bg-slate-100 z-0"></div>
+            
             {steps.map((s, idx) => {
               const StepIcon = s.icon
               const isCurrent = s.id === step
@@ -96,32 +104,39 @@ export default async function LessonLayout({ children, params }: LessonLayoutPro
               return isLocked ? (
                 <div 
                   key={s.id}
-                  className="w-full flex items-center justify-between p-3.5 bg-zinc-100 text-zinc-400 rounded-2xl cursor-not-allowed opacity-70"
+                  className="relative z-10 w-full flex items-center justify-between p-3.5 bg-slate-50 border border-slate-100 text-slate-400 rounded-2xl cursor-not-allowed opacity-80 transition-all hover:bg-slate-100/50"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-xl bg-zinc-200 flex items-center justify-center text-zinc-400">
+                    <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-300 shadow-sm">
                       <StepIcon size={16} />
                     </div>
-                    <span className="text-xs md:text-sm font-semibold">{s.label}</span>
+                    <span className="text-sm font-semibold">{s.label}</span>
                   </div>
-                  <Lock size={14} className="text-zinc-400" />
+                  <Lock size={14} className="text-slate-300" />
                 </div>
               ) : (
                 <Link
                   key={s.id}
                   href={`/pembelajaran/${slug}/${lessonId}/${s.id}`}
-                  className={`w-full flex items-center justify-between p-3.5 rounded-2xl transition-all ${
+                  className={`relative z-10 w-full flex items-center justify-between p-3.5 rounded-2xl transition-all border ${
                     isCurrent 
-                      ? 'bg-[#5b6bb9] text-white shadow-md shadow-amber-100 font-bold' 
-                      : 'bg-amber-50/50 hover:bg-amber-50 text-amber-900 font-semibold'
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-orange-600/20 shadow-md shadow-orange-500/20 font-bold transform hover:scale-[1.02]' 
+                      : 'bg-white border-slate-200 hover:border-orange-300 hover:shadow-md hover:shadow-orange-500/5 text-slate-700 font-semibold group'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isCurrent ? 'bg-white/20 text-white' : 'bg-white text-amber-600 shadow-sm'}`}>
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
+                      isCurrent 
+                        ? 'bg-white/20 text-white shadow-sm' 
+                        : 'bg-orange-50 text-orange-600 group-hover:bg-orange-100'
+                    }`}>
                       <StepIcon size={16} />
                     </div>
-                    <span className="text-xs md:text-sm">{s.label}</span>
+                    <span className="text-sm">{s.label}</span>
                   </div>
+                  {isCompleted && !isLocked && !isCurrent && (
+                    <CheckCircle2 size={16} className="text-emerald-500" />
+                  )}
                 </Link>
               )
             })}
