@@ -130,15 +130,6 @@ export default function Sidebar({ isCollapsed }: SidebarProps) {
 
           <div className="mt-2 flex flex-col gap-1">
             <Link 
-              href="/settings" 
-              className={`flex items-center gap-4 px-4 py-2.5 rounded-xl font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all ${isCollapsed ? "justify-center px-0" : ""}`}
-            >
-              <Settings className="h-5 w-5 text-slate-400 shrink-0" />
-              <span className={`transition-opacity duration-200 ${isCollapsed ? "md:hidden" : "block"}`}>
-                Pengaturan
-              </span>
-            </Link>
-            <Link 
               href="/help" 
               className={`flex items-center gap-4 px-4 py-2.5 rounded-xl font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all ${isCollapsed ? "justify-center px-0" : ""}`}
             >
