@@ -13,6 +13,7 @@ import {
   Users,
   User
 } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 
 interface SidebarProps {
@@ -75,16 +76,22 @@ export default function Sidebar({ isCollapsed }: SidebarProps) {
         {/* Header / Logo */}
         <div className="flex h-[72px] items-center px-6 border-b border-slate-200/60 justify-between">
           <Link href="/dashboard" className={`flex items-center gap-3 transition-opacity duration-200 ${isCollapsed ? "md:hidden" : "block"}`}>
-            <div className="flex items-center justify-center bg-gradient-to-br from-orange-500 to-amber-500 text-white p-1.5 rounded-lg shadow-sm">
-              <Flame size={20} className="fill-current" />
-            </div>
-            <span className="font-extrabold text-slate-900 tracking-tight text-lg">
-              Learn<span className="text-orange-500">Together</span>
-            </span>
+            <Image 
+              src="/images/learntogether.png"
+              alt="LearnTogether Logo"
+              width={160}
+              height={32}
+              className="drop-shadow-sm"
+            />
           </Link>
           {isCollapsed && (
-            <Link href="/dashboard" className="hidden md:flex items-center justify-center bg-gradient-to-br from-orange-500 to-amber-500 text-white p-2 rounded-xl shadow-sm mx-auto">
-              <Flame size={20} className="fill-current" />
+            <Link href="/dashboard" className="hidden md:flex items-center justify-center p-2 rounded-xl mx-auto">
+              <Image 
+                src="/images/logo.png"
+                alt="LT Logo"
+                width={32}
+                height={32}
+              />
             </Link>
           )}
           <button onClick={() => setIsOpenMobile(false)} className="md:hidden text-slate-400 hover:text-slate-600">

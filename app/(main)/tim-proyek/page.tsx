@@ -29,6 +29,10 @@ export default function ProjectsPage() {
   const [isPending, startTransition] = useTransition();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
+  const [joinCode, setJoinCode] = useState('');
+  const [isJoining, setIsJoining] = useState(false);
+  
   const [newProjectName, setNewProjectName] = useState('');
   const [newTeamName, setNewTeamName] = useState('');
 
@@ -39,25 +43,8 @@ export default function ProjectsPage() {
       if (res.success && res.data && res.data.length > 0) {
         setProjects(res.data);
       } else {
-        // Fallback to dummy data if DB empty or offline
-        setProjects([
-          {
-            id: '1',
-            name: 'Bubadibako',
-            teamName: 'Team Alpha',
-            progress: 75,
-            dueDate: 'Dec 25',
-            members: ['/default-avatar.png', '', '/default-avatar.png'], 
-          },
-          {
-            id: '2',
-            name: 'Web Redesign',
-            teamName: 'Design Studio',
-            progress: 40,
-            dueDate: 'Jan 12',
-            members: ['', ''], 
-          }
-        ]);
+        // Show empty state if no projects
+        setProjects([]);
       }
       setIsLoading(false);
     }
@@ -103,6 +90,20 @@ export default function ProjectsPage() {
     });
   };
 
+  const handleJoinProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!joinCode.trim()) return;
+    
+    setIsJoining(true);
+    // TODO: implement backend join logic
+    setTimeout(() => {
+      alert(`Permintaan bergabung ke tim dengan kode "${joinCode}" sedang menunggu persetujuan Admin Tim.`);
+      setIsJoining(false);
+      setIsJoinModalOpen(false);
+      setJoinCode('');
+    }, 1000);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 p-8 text-slate-800">
       
@@ -118,17 +119,48 @@ export default function ProjectsPage() {
           </p>
         </div>
         
-        <button 
-          onClick={() => setIsModalOpen(true)}
-          disabled={isPending}
-          className="flex items-center gap-2 bg-amber-600 text-white px-5 py-2.5 rounded-2xl shadow-md hover:bg-amber-700 transition font-medium disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-          {isPending ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
-          Add Project
-        </button>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setIsJoinModalOpen(true)}
+            className="flex items-center gap-2 bg-white text-slate-700 border border-slate-200 px-5 py-2.5 rounded-2xl shadow-sm hover:bg-slate-50 hover:border-slate-300 transition font-medium"
+          >
+            Join Project
+          </button>
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            disabled={isPending}
+            className="flex items-center gap-2 bg-amber-600 text-white px-5 py-2.5 rounded-2xl shadow-md hover:bg-amber-700 transition font-medium disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {isPending ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
+            Add Project
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {projects.length === 0 && !isLoading ? (
+        <div className="w-full flex flex-col items-center justify-center py-24 bg-white rounded-[2rem] border border-slate-200 shadow-sm">
+          <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+            <Plus size={32} className="text-slate-300" />
+          </div>
+          <h3 className="text-lg font-bold text-slate-800 mb-2">Belum ada proyek</h3>
+          <p className="text-slate-500 max-w-sm text-center mb-6">Anda belum memiliki atau bergabung ke proyek tim mana pun. Silakan buat proyek baru atau gabung menggunakan kode undangan.</p>
+          <div className="flex gap-3">
+            <button 
+              onClick={() => setIsJoinModalOpen(true)}
+              className="bg-white border border-slate-200 text-slate-700 px-5 py-2 rounded-xl font-bold hover:bg-slate-50 transition"
+            >
+              Join Project
+            </button>
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="bg-amber-500 text-white px-5 py-2 rounded-xl font-bold hover:bg-amber-600 transition"
+            >
+              Create New
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {projects.map((project, index) => {
           const themeClass = CARD_THEMES[index % CARD_THEMES.length];
 
@@ -199,7 +231,8 @@ export default function ProjectsPage() {
             </Link>
           );
         })}
-      </div>
+        </div>
+      )}
 
       {/* Modal Box */}
       {isModalOpen && (
@@ -256,6 +289,54 @@ export default function ProjectsPage() {
               </div>
             </form>
 
+          </div>
+        </div>
+      )}
+
+      {/* Join Modal */}
+      {isJoinModalOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-[2rem] p-8 w-full max-w-md shadow-xl border border-slate-100 relative mx-4">
+            <button 
+              onClick={() => setIsJoinModalOpen(false)}
+              className="absolute right-6 top-6 text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100 transition"
+            >
+              <X size={20} />
+            </button>
+
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">Join Project</h2>
+
+            <form onSubmit={handleJoinProject} className="space-y-5">
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Project ID / Invite Code</label>
+                <input 
+                  type="text"
+                  required
+                  placeholder="Paste kode undangan atau ID proyek..."
+                  value={joinCode}
+                  onChange={(e) => setJoinCode(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500 transition text-slate-900"
+                />
+              </div>
+
+              <div className="flex gap-3 mt-6 pt-2">
+                <button 
+                  type="button"
+                  onClick={() => setIsJoinModalOpen(false)}
+                  className="flex-1 py-3 bg-slate-100 text-slate-700 font-semibold rounded-xl hover:bg-slate-200 transition"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  disabled={isJoining}
+                  className="flex-1 py-3 bg-amber-600 text-white font-semibold rounded-xl hover:bg-amber-700 transition shadow-md flex items-center justify-center gap-2 disabled:opacity-70"
+                >
+                  {isJoining ? <Loader2 size={18} className="animate-spin" /> : null}
+                  Join
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

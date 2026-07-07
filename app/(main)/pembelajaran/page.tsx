@@ -26,7 +26,10 @@ const iconMap: Record<string, any> = {
   'cyber-security': { small: Shield, bg: 'bg-[#ff7e67]' }
 };
 
-export default async function PembelajaranPage() {
+export default async function PembelajaranPage(props: { searchParams?: Promise<{ search?: string }> }) {
+  const searchParams = await props.searchParams;
+  const search = searchParams?.search?.toLowerCase();
+  
   const progressMap: Record<string, number> = {};
 
   try {
@@ -77,7 +80,14 @@ export default async function PembelajaranPage() {
     console.error("Progress check failed (DB offline?):", error);
   }
 
-  const coursesList = Object.values(curriculum);
+  let coursesList = Object.values(curriculum);
+  
+  if (search) {
+    coursesList = coursesList.filter(c => 
+      c.title.toLowerCase().includes(search) || 
+      c.description.toLowerCase().includes(search)
+    );
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50 p-6 md:p-12">
@@ -93,7 +103,13 @@ export default async function PembelajaranPage() {
         </div>
 
         {/* Grid Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {coursesList.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <p className="text-zinc-500 font-medium">Tidak ada kelas yang sesuai dengan pencarian &quot;{search}&quot;</p>
+            <Link href="/pembelajaran" className="mt-4 text-amber-600 font-bold hover:underline">Lihat Semua Kelas</Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {coursesList.map((course, i) => {
             const mapping = iconMap[course.slug] || iconMap['ui-ux-design'];
             const SmallIcon = mapping.small;
@@ -150,6 +166,7 @@ export default async function PembelajaranPage() {
             );
           })}
         </div>
+        )}
 
       </div>
     </div>

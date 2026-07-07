@@ -171,7 +171,7 @@ export async function updateTaskStatus(taskId: string, newStatus: string) {
 export async function addTask(projectId: string, taskData: any) {
   try {
     const supabase = getSupabaseAdmin();
-    const { data } = await supabase.from('tasks').insert({
+    const { data, error: insertErr } = await supabase.from('tasks').insert({
       project_id: projectId,
       title: taskData.title,
       description: taskData.description,
@@ -181,8 +181,14 @@ export async function addTask(projectId: string, taskData: any) {
       deadline: new Date().toISOString()
     }).select('id').single();
     
+    if (insertErr) {
+      console.error("Task insert error:", insertErr);
+      return { success: false, error: insertErr.message };
+    }
+
     return { success: true, taskId: data?.id };
   } catch (error) {
+    console.error("addTask exception:", error);
     return { success: false };
   }
 }

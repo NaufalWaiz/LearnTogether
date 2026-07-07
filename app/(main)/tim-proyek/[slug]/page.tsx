@@ -270,6 +270,19 @@ export default function ProjectDashboardOnly() {
           }
         };
       });
+    } else {
+      alert(`Gagal menyimpan task: ${res.error || 'Unknown error'}`);
+      // Remove the optimistic task
+      setColumns(prev => {
+        const colTasks = prev[activeColumnKey].tasks.filter(t => t.id !== tempId);
+        return {
+          ...prev,
+          [activeColumnKey]: {
+            ...prev[activeColumnKey],
+            tasks: colTasks
+          }
+        };
+      });
     }
   };
 

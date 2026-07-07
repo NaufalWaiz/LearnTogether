@@ -3,7 +3,8 @@
 
 import { Menu, ChevronLeft, Bell, Search, Sparkles } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
 
 interface NavbarProps {
   toggleSidebar: () => void;
@@ -13,6 +14,15 @@ interface NavbarProps {
 export default function Navbar({ toggleSidebar, isCollapsed }: NavbarProps) {
   const { user } = useUser();
   const pathname = usePathname();
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/pembelajaran?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
 
   // Helper to determine the title based on the route
   const getPageTitle = () => {
@@ -49,17 +59,19 @@ export default function Navbar({ toggleSidebar, isCollapsed }: NavbarProps) {
 
       {/* Tengah: Global Search (Optional) */}
       <div className="hidden lg:flex flex-1 max-w-md mx-8">
-        <div className="relative w-full group">
+        <form onSubmit={handleSearch} className="relative w-full group">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-orange-500 transition-colors" />
           <input 
             type="text" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari materi, tim, atau modul..."
             className="w-full bg-slate-100/80 hover:bg-slate-100 border border-transparent focus:bg-white focus:border-orange-300 focus:ring-4 focus:ring-orange-500/10 rounded-full pl-10 pr-4 py-2.5 text-sm outline-none transition-all text-slate-700 placeholder:text-slate-400"
           />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-0.5 bg-white border border-slate-200 rounded text-[10px] font-bold text-slate-400 shadow-sm">
-            ⌘K
-          </div>
-        </div>
+          <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-0.5 bg-white border border-slate-200 rounded text-[10px] font-bold text-slate-400 shadow-sm hover:text-orange-600 hover:border-orange-200 transition-colors cursor-pointer">
+            ↵ Enter
+          </button>
+        </form>
       </div>
 
       {/* Kanan: Notifikasi & User Profile */}
