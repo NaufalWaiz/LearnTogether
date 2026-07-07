@@ -137,6 +137,7 @@ export async function getProjectDetail(projectId: string) {
           name,
           team_members (
             role_in_team,
+            member_status,
             users ( id, full_name, avatar_url )
           )
         )
@@ -171,12 +172,17 @@ export async function updateTaskStatus(taskId: string, newStatus: string) {
 export async function addTask(projectId: string, taskData: any) {
   try {
     const supabase = getSupabaseAdmin();
+    let dbPriority = 'medium';
+    const uiPriority = taskData.priority?.toLowerCase() || '';
+    if (uiPriority === 'high') dbPriority = 'high';
+    else if (uiPriority === 'low') dbPriority = 'low';
+
     const { data, error: insertErr } = await supabase.from('tasks').insert({
       project_id: projectId,
       title: taskData.title,
       description: taskData.description,
       status: taskData.status || 'todo',
-      priority: taskData.priority || 'medium',
+      priority: dbPriority,
       assignee_id: taskData.assignee_id || null,
       deadline: new Date().toISOString()
     }).select('id').single();
@@ -201,5 +207,82 @@ export async function updateProjectDescription(projectId: string, newDescription
     return { success: true };
   } catch (error) {
     return { success: false, error: 'Failed to update description' };
+  }
+}
+
+export async function joinProjectRequest(projectId: string) {
+  try {
+    const clerkUser = await currentUser();
+    if (!clerkUser) return { success: false, error: 'Unauthorized' };
+    
+    const supabase = getSupabaseAdmin();
+    
+    // Get user id
+    const { data: user } = await supabase.from('users').select('id').eq('clerk_id', clerkUser.id).single();
+    if (!user) return { success: false, error: 'User not found' };
+
+    // Get team id from project
+    const { data: project } = await supabase.from('projects').select('team_id').eq('id', projectId).single();
+    if (!project) return { success: false, error: 'Project not found' };
+
+    // Insert pending request using role_in_team='Pending' to bypass constraint
+    const { error } = await supabase.from('team_members').insert({
+      team_id: project.team_id,
+      user_id: user.id,
+      role_in_team: 'Pending',
+      member_status: 'active'
+    });
+    
+    if (error) {
+      if (error.code === '23505') return { success: false, error: 'Anda sudah bergabung atau dalam antrean' };
+      return { success: false, error: error.message };
+    }
+    
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: 'Server error' };
+  }
+}
+
+export async function processMemberRequest(projectId: string, userId: string, action: 'approve' | 'reject') {
+  try {
+    const clerkUser = await currentUser();
+    if (!clerkUser) return { success: false, error: 'Unauthorized' };
+    
+    const supabase = getSupabaseAdmin();
+    // Verify admin
+    const { data: adminUser } = await supabase.from('users').select('id').eq('clerk_id', clerkUser.id).single();
+    if (!adminUser) return { success: false, error: 'User not found' };
+
+    const { data: project } = await supabase.from('projects').select('team_id').eq('id', projectId).single();
+    if (!project) return { success: false, error: 'Project not found' };
+    
+    // Check if current user is Lead
+    const { data: leadCheck } = await supabase.from('team_members')
+      .select('role_in_team')
+      .eq('team_id', project.team_id)
+      .eq('user_id', adminUser.id)
+      .single();
+      
+    if (!leadCheck || leadCheck.role_in_team !== 'Lead') {
+      return { success: false, error: 'Only Lead can approve members' };
+    }
+
+    if (action === 'approve') {
+      await supabase.from('team_members')
+        .update({ role_in_team: 'Member' })
+        .eq('team_id', project.team_id)
+        .eq('user_id', userId);
+    } else {
+      await supabase.from('team_members')
+        .delete()
+        .eq('team_id', project.team_id)
+        .eq('user_id', userId);
+    }
+    
+    revalidatePath(`/tim-proyek/${projectId}`);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: 'Failed to process request' };
   }
 }

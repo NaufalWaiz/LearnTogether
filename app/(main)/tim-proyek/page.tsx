@@ -4,7 +4,7 @@ import React, { useState, useEffect, useTransition } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Plus, MoreHorizontal, Calendar, X, Loader2 } from 'lucide-react';
-import { getUserProjects, createProjectAndTeam } from '@/app/actions/projects';
+import { getUserProjects, createProjectAndTeam, joinProjectRequest } from '@/app/actions/projects';
 
 interface Project {
   id: string;
@@ -95,13 +95,15 @@ export default function ProjectsPage() {
     if (!joinCode.trim()) return;
     
     setIsJoining(true);
-    // TODO: implement backend join logic
-    setTimeout(() => {
-      alert(`Permintaan bergabung ke tim dengan kode "${joinCode}" sedang menunggu persetujuan Admin Tim.`);
-      setIsJoining(false);
+    const res = await joinProjectRequest(joinCode.trim());
+    if (res.success) {
+      alert(`Berhasil! Permintaan bergabung ke tim sedang menunggu persetujuan Admin Tim.`);
       setIsJoinModalOpen(false);
       setJoinCode('');
-    }, 1000);
+    } else {
+      alert(`Gagal: ${res.error}`);
+    }
+    setIsJoining(false);
   };
 
   return (

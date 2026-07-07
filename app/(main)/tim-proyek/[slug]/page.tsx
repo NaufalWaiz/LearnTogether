@@ -3,6 +3,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { Copy, Check } from 'lucide-react';
 
 const DUMMY_USERS = [
   { id: 'u1', name: 'Revani Khoirunnisa', role: 'Project Manager', avatar: '👩', status: 'online' },
@@ -53,7 +54,7 @@ const INITIAL_COLUMNS = {
 
 type ColumnKey = keyof typeof INITIAL_COLUMNS;
 
-import { getProjectDetail, updateTaskStatus, addTask, updateProjectDescription } from '@/app/actions/projects';
+import { getProjectDetail, updateTaskStatus, addTask, updateProjectDescription, processMemberRequest } from '@/app/actions/projects';
 import { useParams } from 'next/navigation';
 
 export default function ProjectDashboardOnly() {
@@ -84,7 +85,8 @@ export default function ProjectDashboardOnly() {
           name: tm.users?.full_name || 'Unknown',
           role: tm.role_in_team || 'Member',
           avatar: tm.users?.avatar_url || '👤',
-          status: 'online'
+          status: 'online',
+          member_status: tm.member_status || 'active'
         })) || [];
         if (mappedMembers.length > 0) setTeamMembers(mappedMembers);
 
@@ -128,6 +130,32 @@ export default function ProjectDashboardOnly() {
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
   const [activeColumnKey, setActiveColumnKey] = useState<ColumnKey | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
+
+  const activeMembers = teamMembers.filter((u: any) => u.role !== 'Pending');
+  const pendingMembers = teamMembers.filter((u: any) => u.role === 'Pending');
+
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(projectId as string);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleProcessMember = async (userId: string, action: 'approve' | 'reject') => {
+    setIsProcessing(userId);
+    const res = await processMemberRequest(projectId as string, userId, action);
+    if (res.success) {
+      if (action === 'approve') {
+        setTeamMembers(prev => prev.map(m => m.id === userId ? { ...m, role: 'Member' } : m));
+      } else {
+        setTeamMembers(prev => prev.filter(m => m.id !== userId));
+      }
+    } else {
+      alert(`Gagal memproses: ${res.error}`);
+    }
+    setIsProcessing(null);
+  };
   
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
@@ -312,6 +340,15 @@ export default function ProjectDashboardOnly() {
                 </div>
                 <span className="text-xs font-bold text-green-600">{overallProgressPercentage}%</span>
               </div>
+              
+              <button
+                onClick={handleCopyCode}
+                className="bg-orange-50 hover:bg-orange-100 text-orange-600 px-4 py-2 rounded-xl border border-orange-200 shadow-sm flex items-center gap-2 transition"
+                title="Salin Kode Tim"
+              >
+                {copied ? <Check size={16} /> : <Copy size={16} />}
+                <span className="text-sm font-bold">{copied ? 'Tersalin!' : 'Copy Invite Code'}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -439,7 +476,7 @@ export default function ProjectDashboardOnly() {
                             <span className="text-[10px] text-gray-400 font-medium truncate max-w-[80px]">ID: {task.id.slice(0, 8)}</span>
                             <div className="flex -space-x-1.5 overflow-hidden">
                               {task.assignedTo.map((userId: string) => {
-                                const user = teamMembers.find(u => u.id === userId);
+                                const user = activeMembers.find(u => u.id === userId);
                                 return (
                                   <div 
                                     key={userId} 
@@ -476,7 +513,7 @@ export default function ProjectDashboardOnly() {
             
             <div className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-gray-900">Anggota Tim ({teamMembers.length})</h3>
+                <h3 className="text-sm font-bold text-gray-900">Anggota Tim ({activeMembers.length})</h3>
                 <button 
                   onClick={() => setIsInviteOpen(true)}
                   className="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-lg text-xs font-semibold hover:bg-amber-100 transition-colors"
@@ -527,7 +564,7 @@ export default function ProjectDashboardOnly() {
                 </div>
                 <div className="flex justify-between items-center py-0.5">
                   <span className="text-gray-400 font-medium">👤 Dibuat oleh</span>
-                  <span className="text-gray-700 font-semibold">{teamMembers.find(t => t.role === 'Lead' || t.role === 'Admin')?.name || teamMembers[0]?.name || '-'}</span>
+                  <span className="text-gray-700 font-semibold">{activeMembers.find((t: any) => t.role === 'Lead' || t.role === 'Admin')?.name || activeMembers[0]?.name || '-'}</span>
                 </div>
                 <div className="flex justify-between items-center py-0.5">
                   <span className="text-gray-400 font-medium">🕒 Dibuat pada</span>
@@ -691,13 +728,55 @@ export default function ProjectDashboardOnly() {
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
               <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <span>👥</span> Semua Anggota Tim ({teamMembers.length})
+                <span>👥</span> Semua Anggota Tim ({activeMembers.length})
               </h3>
               <button onClick={() => setIsMembersModalOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl font-bold">&times;</button>
             </div>
 
-            <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
-              {teamMembers.map((user) => (
+            {pendingMembers.length > 0 && (
+              <div className="mb-6">
+                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Permintaan Bergabung ({pendingMembers.length})</h4>
+                <div className="space-y-2">
+                  {pendingMembers.map((user: any) => (
+                    <div key={user.id} className="flex items-center justify-between p-2 bg-orange-50/50 rounded-xl border border-orange-100">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center text-sm shadow-sm relative overflow-hidden">
+                          {user.avatar?.startsWith('http') ? (
+                            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                          ) : (
+                            user.avatar || '👤'
+                          )}
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-gray-800 leading-tight">{user.name}</h4>
+                          <p className="text-[10px] text-orange-500 font-bold uppercase tracking-wider">Pending</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => handleProcessMember(user.id, 'approve')}
+                          disabled={isProcessing === user.id}
+                          className="px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-lg transition disabled:opacity-50"
+                        >
+                          {isProcessing === user.id ? '...' : 'Terima'}
+                        </button>
+                        <button 
+                          onClick={() => handleProcessMember(user.id, 'reject')}
+                          disabled={isProcessing === user.id}
+                          className="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 text-xs font-bold rounded-lg transition disabled:opacity-50"
+                        >
+                          Tolak
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Anggota Aktif</h4>
+            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+              {activeMembers.map((user: any) => (
                 <div key={user.id} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-xl transition-colors border border-transparent hover:border-gray-100">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gray-100 border border-gray-200 rounded-full flex items-center justify-center text-xl shadow-sm relative overflow-hidden">
